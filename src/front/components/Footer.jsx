@@ -1,7 +1,7 @@
 import React from "react";
 import "./Footer.css"; 
 
-const Footer = () => {
+ export const Footer = () => {
     return (
         <>
             <footer className="footer-section">
@@ -80,4 +80,3 @@ const Footer = () => {
     );
 };
 
-export default Footer;
