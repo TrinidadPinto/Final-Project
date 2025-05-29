@@ -15,11 +15,6 @@ from flask_jwt_extended import jwt_required
 api = Blueprint('api', __name__)
 bcrypt = Bcrypt()
 
-
-# Allow CORS requests to this API
-CORS(api)
-
-
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
 
@@ -54,7 +49,7 @@ def signup():
 
     db.session.add(new_user)
     db.session.commit()
-
+    
     return jsonify({"msg": "User created successfully"}), 201
 
 

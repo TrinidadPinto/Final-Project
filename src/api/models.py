@@ -15,7 +15,6 @@ class User(db.Model):
     city: Mapped[str] = mapped_column(nullable=True)
     country: Mapped[str] = mapped_column(nullable=True)
 
-
     def serialize(self):
         return {
             "id": self.id,
