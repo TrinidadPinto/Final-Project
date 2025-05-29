@@ -36,6 +36,11 @@ def signup():
     email = data.get("email")
     name = data.get("name")
     password = data.get("password")
+    address = data.get("address")
+    phone = data.get("phone")
+    city = data.get("city")
+    country = data.get("country")
+
 
     if not email or not password or not name:
         return jsonify({"msg": "Email and password required"}), 400
@@ -45,7 +50,7 @@ def signup():
         return jsonify({"msg": "User already exists"}), 409
     
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(email=email, password=hashed_password,name=name)
+    new_user = User(email=email, password=hashed_password,name=name, address=address, phone=phone, city=city, country=country)
 
     db.session.add(new_user)
     db.session.commit()
@@ -58,7 +63,7 @@ def login():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-
+    
     if not email or not password:
         return jsonify({"msg": "Email and password required"}), 400
 
@@ -69,10 +74,30 @@ def login():
     return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
 
 
+
+
 @api.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
     # Access the identity of the current user with get_jwt_identity
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
+
+@api.route('/update-profile/<int:user_id>', methods=['PUT'])
+def update_profile(user_id):
+    data = request.get_json()
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    user.name = data.get("name", user.name)
+    user.address = data.get("address", user.address)
+    user.phone = data.get("phone", user.phone)
+    user.city = data.get("city", user.city)
+    user.country = data.get("country", user.country)
+
+    db.session.commit()
+
+    return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 

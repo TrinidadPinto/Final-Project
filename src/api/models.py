@@ -10,6 +10,10 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
+    address: Mapped[str] = mapped_column(nullable=True)
+    phone: Mapped[str] = mapped_column(nullable=True)
+    city: Mapped[str] = mapped_column(nullable=True)
+    country: Mapped[str] = mapped_column(nullable=True)
 
 
     def serialize(self):
@@ -17,6 +21,10 @@ class User(db.Model):
             "id": self.id,
             "email": self.email,
             "name": self.name, 
-            "is_active": self.is_active
+            "is_active": self.is_active,
+            "address": self.address,
+            "phone": self.phone,
+            "city": self.city,
+            "country": self.country,
             # do not serialize the password, its a security breach
         }
