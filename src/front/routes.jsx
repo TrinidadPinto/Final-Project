@@ -9,6 +9,7 @@ import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Signup } from "./pages/Signup"
 import { Demo } from "./pages/Demo";
+import LoginSession from "./components/LoginSession";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -25,6 +26,8 @@ export const router = createBrowserRouter(
         <Route path= "/" element={<Home />} />
         <Route path="/api/signup" element={ <Signup />} /> 
         <Route path="/demo" element={<Demo />} />
+        <Route path="/login" element={<LoginSession />} />
+
       </Route>
     )
 );
