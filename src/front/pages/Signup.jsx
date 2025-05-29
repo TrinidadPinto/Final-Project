@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 
 export function Signup() {
-  const [nombre, setNombre] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
+
+  const API_BASE_URL = "https://turbo-space-guacamole-x66jqxwxrwqh6wxg-3001.app.github.dev/api";
 
   const validarEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);
@@ -15,7 +17,7 @@ export function Signup() {
     e.preventDefault();
     setError(null);
 
-    if (!nombre.trim()) {
+    if (!name.trim()) {
       setError("El nombre es obligatorio.");
       return;
     }
@@ -29,19 +31,20 @@ export function Signup() {
     }
 
     setLoading(true);
+    console.log(import.meta.env.VITE_BACKEND_URL)
 
     try {
-      const response = await fetch("URL_DEL_ENDPOINT_SIGNUP", {
+      const response = await fetch(`${API_BASE_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         alert("¡Usuario registrado con éxito!");
-        setNombre("");
+        setName("");
         setEmail("");
         setPassword("");
       } else {
@@ -65,19 +68,21 @@ export function Signup() {
       )}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            id="nombre"
-            className="form-control"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-            placeholder="Tu nombre completo"
-          />
+        <div className="row mb-3">
+          <div className="col">
+            <label htmlFor="nombre" className="form-label">
+              Nombre
+            </label>
+            <input
+              type="text"
+              id="nombre"
+              className="form-control"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Tu nombre"
+            />
+          </div>
         </div>
 
         <div className="mb-3">

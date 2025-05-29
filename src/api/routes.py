@@ -11,11 +11,6 @@ from flask_cors import CORS
 api = Blueprint('api', __name__)
 bcrypt = Bcrypt()
 
-
-# Allow CORS requests to this API
-CORS(api)
-
-
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
 
@@ -41,11 +36,11 @@ def signup():
         return jsonify({"msg": "User already exists"}), 409
     
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(email=email, password=hashed_password,name=name)
+    new_user = User(email=email, password=hashed_password, name=name)
 
     db.session.add(new_user)
     db.session.commit()
-
+    
     return jsonify({"msg": "User created successfully"}), 201
 
 
@@ -63,6 +58,3 @@ def login():
         return jsonify({"msg": "Invalid credentials"}), 401
 
     return jsonify({"msg": "Login successful", "user": user.serialize()}), 200
-
-
-    
