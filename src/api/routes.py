@@ -6,6 +6,10 @@ from flask_bcrypt import Bcrypt
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+
 
 
 api = Blueprint('api', __name__)
@@ -61,8 +65,14 @@ def login():
     user = User.query.filter_by(email=email).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials"}), 401
+    access_token = create_access_token(identity=str(user.id))
+    return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
 
-    return jsonify({"msg": "Login successful", "user": user.serialize()}), 200
 
+@api.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
 
-    
