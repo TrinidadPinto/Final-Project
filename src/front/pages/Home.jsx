@@ -1,3 +1,4 @@
+
 import heroImage from '../assets/img/hero_section_beach.jpeg';
 import SearchBar from '../components/SearchBar';
 
@@ -24,3 +25,4 @@ const Home = () => {
     );
 }
 export default Home;
+

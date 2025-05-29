@@ -5,9 +5,11 @@ import {
     createRoutesFromElements,
     Route,
 } from "react-router-dom";
+
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import { Single } from "./pages/Single";
+import { Signup } from "./pages/Signup"
 import { Demo } from "./pages/Demo";
 import LoginSession from "./components/LoginSession";
 import RoomDetail from "./pages/RoomDetail";
@@ -23,12 +25,14 @@ export const router = createBrowserRouter(
         // Root Route: All navigation will start from here.
         <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
 
-            {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
-            <Route path="/" element={<Home />} />
-            <Route path="/single/:theId" element={<Single />} />  {/* Dynamic route for single items */}
-            <Route path="/demo" element={<Demo />} />
-            <Route path="/login" element={<LoginSession />} />
-            <Route path="/roomdetail" element={<RoomDetail />} />
+
+        {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+        <Route path= "/" element={<Home />} />
+        <Route path="/api/signup" element={ <Signup />} /> 
+        <Route path="/demo" element={<Demo />} />
+        <Route path="/login" element={<LoginSession />} />
+          <Route path="/roomdetail" element={<RoomDetail />} />
+
 
         </Route>
     )
