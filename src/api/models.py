@@ -1,10 +1,12 @@
+from turtle import title
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Float, Integer, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__= "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
@@ -14,6 +16,8 @@ class User(db.Model):
     phone: Mapped[str] = mapped_column(nullable=True)
     city: Mapped[str] = mapped_column(nullable=True)
     country: Mapped[str] = mapped_column(nullable=True)
+
+    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host")
 
     def serialize(self):
         return {
@@ -26,4 +30,29 @@ class User(db.Model):
             "city": self.city,
             "country": self.country,
             # do not serialize the password, its a security breach
+        }
+
+class Room(db.Model):
+    __tablename__ = "room"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(String(), nullable=False)
+    photos: Mapped[str] = mapped_column(String(), nullable=False)
+    rules: Mapped[str] = mapped_column(String(), nullable=True)
+    capacity: Mapped[int] = mapped_column(nullable=False)
+    price: Mapped[float] = mapped_column(nullable=False)
+    host_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+
+    host: Mapped["User"] = relationship("User", back_populates="rooms")
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "photos": self.photos.split(","),
+            "rules": self.rules,
+            "capacity": self.capacity,
+            "price": self.price,
+            "host_id": self.host_id
         }

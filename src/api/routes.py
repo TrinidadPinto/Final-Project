@@ -1,9 +1,6 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_bcrypt import Bcrypt
-from api.models import db, User
+from api.models import db, User, Room
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token
@@ -68,8 +65,10 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
 
-
-
+@api.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200
 
 @api.route("/protected", methods=["GET"])
 @jwt_required()
@@ -96,3 +95,25 @@ def update_profile(user_id):
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 
+@api.route('/addroom', methods=['POST'])
+def create_room():
+    data = request.get_json()
+
+    required_fields = ["title", "description", "photos", "capacity", "price", "host_id"]
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({"msg": f"{field} is required"}), 400
+
+    new_room = Room(
+        title=data["title"],
+        description=data["description"],
+        photos=",".join(data.get("photos", [])),
+        rules=data.get("rules", ""),
+        capacity=data["capacity"],
+        price=data["price"],
+        host_id=data["host_id"]
+    )
+    db.session.add(new_room)
+    db.session.commit()
+
+    return jsonify({"msg": "Room created", "room": new_room.serialize()}), 201
