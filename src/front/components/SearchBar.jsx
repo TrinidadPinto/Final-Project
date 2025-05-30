@@ -5,8 +5,8 @@ const SearchBar = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm();
+   formState: { errors },
+  } = useForm(); 
 
   const onSubmit = data => {
     console.log('Datos del formulario:', data);
