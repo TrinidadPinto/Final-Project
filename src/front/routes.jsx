@@ -31,7 +31,7 @@ export const router = createBrowserRouter(
         <Route path="/api/signup" element={ <Signup />} /> 
         <Route path="/demo" element={<Demo />} />
         <Route path="/login" element={<LoginSession />} />
-          <Route path="/roomdetail" element={<RoomDetail />} />
+          <Route path="/roomdetail/:id" element={<RoomDetail />} />
 
 
         </Route>
