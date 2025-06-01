@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__="user"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
@@ -26,4 +27,26 @@ class User(db.Model):
             "city": self.city,
             "country": self.country,
             # do not serialize the password, its a security breach
+        }
+
+
+class Room(db.Model):
+    __tablename__="room"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(nullable=False)
+    photo_url: Mapped[str] = mapped_column(nullable=False)
+    rules: Mapped[str] = mapped_column(nullable=True)
+    capacity: Mapped[int] = mapped_column(nullable=False)
+    price: Mapped[float] = mapped_column(nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "photo_url": self.photo_url,
+            "rules": self.rules,
+            "capacity": self.capacity,
+            "price": self.price
         }
