@@ -95,25 +95,30 @@ def update_profile(user_id):
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 
-@api.route('/addroom', methods=['POST'])
-def create_room():
-    data = request.get_json()
+@api.route('/rooms', methods=['POST', 'GET'])
+def handle_rooms():
+    if request.method == 'POST':
+        data = request.get_json()
 
-    required_fields = ["title", "description", "photos", "capacity", "price", "host_id"]
-    for field in required_fields:
-        if not data.get(field):
-            return jsonify({"msg": f"{field} is required"}), 400
+        required_fields = ["title", "description", "photos", "capacity", "price", "host_id"]
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"{field} is required"}), 400
 
-    new_room = Room(
-        title=data["title"],
-        description=data["description"],
-        photos=",".join(data.get("photos", [])),
-        rules=data.get("rules", ""),
-        capacity=data["capacity"],
-        price=data["price"],
-        host_id=data["host_id"]
-    )
-    db.session.add(new_room)
-    db.session.commit()
+        room = Room(
+            title=data["title"],
+            description=data["description"],
+            photos=",".join(data.get("photos", [])),
+            rules=data.get("rules", ""),
+            capacity=data["capacity"],
+            price=data["price"],
+            host_id=data["host_id"]
+        )
+        db.session.add(room)
+        db.session.commit()
 
-    return jsonify({"msg": "Room created", "room": new_room.serialize()}), 201
+        return jsonify({"msg": "Room created", "room": room.serialize()}), 201
+    
+    elif request.method == 'GET':
+        rooms = Room.query.all()
+        return jsonify([room.serialize() for room in rooms]), 200

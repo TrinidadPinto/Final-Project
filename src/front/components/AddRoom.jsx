@@ -10,14 +10,15 @@ export default function AddRoom() {
         price: ""
     });
 
+    const API_BASE_URL = "https://crispy-fortnight-9vvp4w95rpvfxrr7-3001.app.github.dev/api";
+
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const host_id = localStorage.getItem("user_id");
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/rooms`, {
+        const response = await fetch(`${API_BASE_URL}/rooms`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -73,8 +74,6 @@ export default function AddRoom() {
                     name="photos"
                     className="form-control"
                     placeholder="URLs de fotos separadas por coma"
-                    value={form.photos}
-                    onChange={handleImageUplode}
                     required
                 />
             </div>
@@ -86,7 +85,7 @@ export default function AddRoom() {
                 </div>
             )}
             <div className="row mb-3">
-                <div className="col">
+                <div className="form-group col">
                     <label htmlFor="rules" className="form-label">Reglas</label>
                     <textarea
                         id="rules"
@@ -98,34 +97,37 @@ export default function AddRoom() {
                         onChange={handleChange}
                     />
                 </div>
-                <div className="col">
+                <div className="form-group col">
                     <label htmlFor="capacity" className="form-label">Capacidad *</label>
                     <input
                         type="number"
                         id="capacity"
                         name="capacity"
                         className="form-control"
-                        placeholder="Número de personas"
+                        placeholder="Cantidad de personas"
                         value={form.capacity}
                         onChange={handleChange}
                         required
+                        step="1"
                         min="1"
                     />
                 </div>
-                <div className="col">
+                <div className="form-group col">
                     <label htmlFor="price" className="form-label">Precio por noche *</label>
-                    <input
-                        type="number"
-                        id="price"
-                        name="price"
-                        className="form-control"
-                        placeholder="Precio en CLP"
-                        value={form.price}
-                        onChange={handleChange}
-                        required
-                        step="0.01"
-                        min="0"
-                    />
+                    <div className="input-group mb-2">
+                        <div className="input-group-prepend">
+                            <div className="input-group-text">$</div>
+                        </div>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="price" name="price"
+                            placeholder="Precio en CLP"
+                            value={form.price}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
                 </div>
             </div>
             <button type="submit" className="btn btn-primary w-100">Publicar habitacion</button>
