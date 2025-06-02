@@ -1,6 +1,3 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_bcrypt import Bcrypt
 from api.models import db, User, Room
@@ -68,8 +65,10 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
 
-
-
+@api.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200
 
 @api.route("/protected", methods=["GET"])
 @jwt_required()
@@ -96,8 +95,35 @@ def update_profile(user_id):
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 
+@api.route('/rooms', methods=['POST', 'GET'])
+def handle_rooms():
+    if request.method == 'POST':
+        data = request.get_json()
 
-@api.route('/rooms/<int:room_id>', methods=['PUT'])                 #EDITAR HABITACION
+        required_fields = ["title", "description", "photos", "capacity", "price", "host_id"]
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"{field} is required"}), 400
+
+        room = Room(
+            title=data["title"],
+            description=data["description"],
+            photos=",".join(data.get("photos", [])),
+            rules=data.get("rules", ""),
+            capacity=data["capacity"],
+            price=data["price"],
+            host_id=data["host_id"]
+        )
+        db.session.add(room)
+        db.session.commit()
+
+        return jsonify({"msg": "Room created", "room": room.serialize()}), 201
+    
+    elif request.method == 'GET':
+        rooms = Room.query.all()
+        return jsonify([room.serialize() for room in rooms]), 200
+    
+@api.route('/rooms/<int:room_id>', methods=['PUT'])
 def update_room(room_id):
     data = request.get_json()
 
@@ -117,32 +143,7 @@ def update_room(room_id):
     return jsonify({"msg": "Room updated successfully", "room": room.serialize()}), 200
 
 
-
-@api.route('/rooms', methods=['POST'])                              #CREAR HABITACION
-def create_room():
-    data = request.get_json()
-
-    required_fields = ['title', 'description', 'photo_url', 'capacity', 'price']
-    if not all(field in data for field in required_fields):
-        return jsonify({"msg": "Missing required fields"}), 400
-    
-    new_room = Room(
-        title=data['title'],
-        description=data['description'],
-        photo_url=data['photo_url'],
-        rules=data.get('rules'),
-        capacity=data['capacity'],
-        price=data['price']
-    )
-
-    db.session.add(new_room)
-    db.session.commit()
-
-    return jsonify({"msg": "Room created successfully", "room": new_room.serialize()}), 201
-
-
-
-@api.route('/rooms/<int:room_id>', methods=['GET'])                  #VER HABITACION
+@api.route('/rooms/<int:room_id>', methods=['GET'])
 def get_room(room_id):
     room = Room.query.get(room_id)
     if not room:
@@ -150,7 +151,7 @@ def get_room(room_id):
     return jsonify(room.serialize()), 200
 
 
-@api.route('/rooms/<int:room_id>', methods=['DELETE'])               #BORRAR HABITACION
+@api.route('/rooms/<int:room_id>', methods=['DELETE'])
 def delete_room(room_id):
     room = Room.query.get(room_id)
     if not room:

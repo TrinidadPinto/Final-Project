@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import { Signup } from "./pages/Signup"
 import { Demo } from "./pages/Demo";
 import LoginSession from "./components/LoginSession";
+import AddRoom from "./components/AddRoom";
 import RoomDetail from "./pages/RoomDetail";
 
 export const router = createBrowserRouter(
@@ -31,7 +32,8 @@ export const router = createBrowserRouter(
         <Route path="/api/signup" element={ <Signup />} /> 
         <Route path="/demo" element={<Demo />} />
         <Route path="/login" element={<LoginSession />} />
-          <Route path="/roomdetail/:id" element={<RoomDetail />} />
+        <Route path="/addroom" element={<AddRoom />} />
+        <Route path="/roomdetail" element={<RoomDetail />} />
 
 
         </Route>

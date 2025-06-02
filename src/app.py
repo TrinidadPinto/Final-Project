@@ -1,4 +1,5 @@
 import os
+import cloudinary
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
@@ -12,6 +13,12 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 
 # from models import Person
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUDNAME'), 
+    api_key = os.getenv('CLOUDINARY_API_KEY'), 
+    api_secret = os.getenv('CLOUDINARY_API_SECRET'), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -62,6 +69,8 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):

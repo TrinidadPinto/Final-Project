@@ -1,11 +1,12 @@
+from turtle import title
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Float, Integer, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__="user"
+    __tablename__= "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
@@ -15,6 +16,8 @@ class User(db.Model):
     phone: Mapped[str] = mapped_column(nullable=True)
     city: Mapped[str] = mapped_column(nullable=True)
     country: Mapped[str] = mapped_column(nullable=True)
+
+    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host")
 
     def serialize(self):
         return {
@@ -28,8 +31,7 @@ class User(db.Model):
             "country": self.country,
             # do not serialize the password, its a security breach
         }
-
-
+    
 class Room(db.Model):
     __tablename__="room"
     id: Mapped[int] = mapped_column(primary_key=True)
