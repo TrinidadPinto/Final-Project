@@ -1,12 +1,11 @@
-from turtle import title
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, Float, Integer, ForeignKey
+from sqlalchemy import String, Boolean, Float, Integer, ForeignKey, Date, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__= "user"
+    __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
@@ -17,7 +16,8 @@ class User(db.Model):
     city: Mapped[str] = mapped_column(nullable=True)
     country: Mapped[str] = mapped_column(nullable=True)
 
-    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host")
+    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host")  # Habitaciones que el usuario ha subido como anfitrión
+    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="user")  # Reservas hechas por este usuario
 
     def serialize(self):
         return {
@@ -28,19 +28,22 @@ class User(db.Model):
             "address": self.address,
             "phone": self.phone,
             "city": self.city,
-            "country": self.country,
-            # do not serialize the password, its a security breach
+            "country": self.country
         }
-    
+
 class Room(db.Model):
-    __tablename__="room"
+    __tablename__ = "room"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(120), nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
     photo_url: Mapped[str] = mapped_column(nullable=False)
     rules: Mapped[str] = mapped_column(nullable=True)
     capacity: Mapped[int] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
+    host_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+
+    host: Mapped["User"] = relationship("User", back_populates="rooms")  # Usuario que publicó la habitación
+    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="room")  # Reservas de esta habitación
 
     def serialize(self):
         return {
@@ -50,5 +53,28 @@ class Room(db.Model):
             "photo_url": self.photo_url,
             "rules": self.rules,
             "capacity": self.capacity,
-            "price": self.price
+            "price": self.price,
+            "host_id": self.host_id
+        }
+
+class Booking(db.Model):
+    __tablename__ = "booking"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=False)
+    check_in: Mapped[Date] = mapped_column(nullable=False)
+    check_out: Mapped[Date] = mapped_column(nullable=False)
+    guests: Mapped[int] = mapped_column(nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="bookings")  # Usuario que hizo la reserva
+    room: Mapped["Room"] = relationship("Room", back_populates="bookings")  # Habitación reservada
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "room_id": self.room_id,
+            "check_in": self.check_in.isoformat(),
+            "check_out": self.check_out.isoformat(),
+            "guests": self.guests
         }
