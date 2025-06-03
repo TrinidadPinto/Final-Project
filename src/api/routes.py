@@ -124,13 +124,19 @@ def handle_rooms():
         return jsonify([room.serialize() for room in rooms]), 200
     
 @api.route('/rooms/<int:room_id>', methods=['PUT'])
+@jwt_required()
 def update_room(room_id):
-    data = request.get_json()
-
+    user_id = get_jwt_identity()
     room = Room.query.get(room_id)
+
+
     if not room:
         return jsonify({"msg": "Room not found"}), 404
     
+    if room.user_id != int(user_id):
+        return jsonify({"msg": "Unauthorized"}), 403
+    
+    data = request.get_json()
     room.title = data.get("title", room.title)
     room.description = data.get("description", room.description)
     room.photo_url = data.get("photo_url", room.photo_url)
@@ -152,13 +158,29 @@ def get_room(room_id):
 
 
 @api.route('/rooms/<int:room_id>', methods=['DELETE'])
+@jwt_required()
 def delete_room(room_id):
+    user_id = get_jwt_identity()
     room = Room.query.get(room_id)
+    
     if not room:
         return jsonify({"msg": "Room not found"}), 404
+    
+    if room.user_id != int(user_id):
+        return jsonify({"msg": "Unauthorized"}), 403
     
 
     db.session.delete(room)
     db.session.commit()
 
     return jsonify({"msg": "Room deleted succsessfully"}), 200
+
+
+@api.route('/my-rooms', methods=['GET'])                             #ver mis habitaciones publicadas
+@jwt_required()
+def get_my_rooms():
+    user_id = get_jwt_identity()
+    rooms = Room.query.filter_by(user_id=user_id).all()
+    return jsonify([room.serialize() for room in rooms]), 200
+
+

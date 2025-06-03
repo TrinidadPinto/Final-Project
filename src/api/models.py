@@ -46,6 +46,9 @@ class Room(db.Model):
     host: Mapped["User"] = relationship("User", back_populates="rooms")  # Usuario que publicó la habitación
     bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="room")  # Reservas de esta habitación
 
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    user = relationship("User", backref="rooms")
+
     def serialize(self):
         return {
             "id": self.id,
