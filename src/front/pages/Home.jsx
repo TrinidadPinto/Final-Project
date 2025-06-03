@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import heroImage from '../assets/img/hero_section_beach.jpeg';
 import SearchBar from '../components/SearchBar';
 import mockRooms from '../data/mockRooms';
+import RoomCard from '../components/RoomCard';
 
 const Home = () => {
     return (
@@ -23,11 +24,9 @@ const Home = () => {
             </div>
             <div className="row mt-4">
                 {
-                    mockRooms.map((room) => {
-                        return (
-                            <Link key={room.id} to={`/roomdetail/${room.id}`}>Go to room {room.title}</Link>
-                        )
-                    })
+                    mockRooms.map((room) => (
+                        <RoomCard key={room.id} room={room} />
+                    ))
                 }
             </div>
 
