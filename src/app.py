@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
+from dotenv import load_dotenv
 from api.utils import APIException, generate_sitemap
 from api.models import db
 from api.routes import api, bcrypt
@@ -23,6 +24,8 @@ cloudinary.config(
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
+
+load_dotenv()
 app = Flask(__name__)
 bcrypt.init_app(app)
 app.url_map.strict_slashes = False
@@ -32,8 +35,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
-        "postgres://", "postgresql://")
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 

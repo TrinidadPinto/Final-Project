@@ -10,8 +10,8 @@ const Navbar = () => {
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <form className="d-flex flex-column flex-md-row ms-auto" role="search">
-                        <button className="btn me-md-2 mb-2 mb-md-0" type="submit">Log In</button>
-                        <button className="btn btn-outline-primary" type="submit">Sign Up</button>
+                        <Link to="/login" className="btn me-md-2 mb-2 mb-md-0">Log In</Link>
+                        <Link to="/api/signup" className="btn btn-outline-primary">Sign Up</Link>
                     </form>
                 </div>
             </div>

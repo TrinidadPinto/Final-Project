@@ -1,8 +1,9 @@
 // src/js/hooks/useActions.js
-import useGlobalReducer from "./useGlobalReducer";
+import { useContext } from "react";
+import { Context } from "./useGlobalReducer";
 
 export const useActions = () => {
-  const { dispatch } = useGlobalReducer();
+  const { dispatch } = useContext(Context);
 
   const getMessage = async () => {
     try {

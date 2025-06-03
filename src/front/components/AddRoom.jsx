@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { Context } from "../hooks/useGlobalReducer";
+import { useActionState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AddRoom() {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         title: "",
         description: "",
@@ -10,7 +14,7 @@ export default function AddRoom() {
         price: ""
     });
 
-    const API_BASE_URL = "https://crispy-fortnight-9vvp4w95rpvfxrr7-3001.app.github.dev/api";
+    const API_BASE_URL = "https://sturdy-zebra-qrrwg6q6q942659j-3001.app.github.dev/api";
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,7 +22,7 @@ export default function AddRoom() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const host_id = localStorage.getItem("user_id");
-        const response = await fetch(`${API_BASE_URL}/rooms`, {
+        const response = await fetch(`${API_BASE_URL}/room`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -27,9 +31,20 @@ export default function AddRoom() {
                 host_id: parseInt(host_id)
             })
         });
+
         const data = await response.json();
         if (response.ok) {
             alert("Habitación publicada");
+            useActionState.fetchRooms();
+            setForm({
+                title: "",
+                description: "",
+                photos: "",
+                rules: "",
+                capacity: "",
+                price: ""
+            });
+            navigate("/room");
         } else {
             alert(data.msg || "Error al publicar habitación");
         }
@@ -74,6 +89,8 @@ export default function AddRoom() {
                     name="photos"
                     className="form-control"
                     placeholder="URLs de fotos separadas por coma"
+                    value={form.photos}
+                    onChange={handleChange}
                     required
                 />
             </div>

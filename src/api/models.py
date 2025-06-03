@@ -29,7 +29,6 @@ class User(db.Model):
             "phone": self.phone,
             "city": self.city,
             "country": self.country,
-            # do not serialize the password, its a security breach
         }
     
 class Room(db.Model):
@@ -37,18 +36,23 @@ class Room(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
-    photo_url: Mapped[str] = mapped_column(nullable=False)
+    photo_url: Mapped[str] = mapped_column(String(), nullable=False)
     rules: Mapped[str] = mapped_column(nullable=True)
     capacity: Mapped[int] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
+
+    host_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    host: Mapped["User"] = relationship("User", back_populates="rooms")
 
     def serialize(self):
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "photo_url": self.photo_url,
+            "photos": self.photo_url.split(","),
             "rules": self.rules,
             "capacity": self.capacity,
-            "price": self.price
+            "price": self.price,
+            "photos": [photo.serialize() for photo in self.photos],
+            "host_id": self.host_id
         }
