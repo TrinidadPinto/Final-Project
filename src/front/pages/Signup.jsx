@@ -7,7 +7,7 @@ export function Signup() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); 
 
-  const API_BASE_URL = "https://turbo-space-guacamole-x66jqxwxrwqh6wxg-3001.app.github.dev/api";
+  const API_BASE_URL = "https://sturdy-zebra-qrrwg6q6q942659j-3001.app.github.dev/api";
 
   const validarEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);

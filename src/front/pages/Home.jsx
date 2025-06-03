@@ -1,11 +1,20 @@
+import { useContext, useEffect } from 'react';
+import { Context } from '../hooks/useGlobalReducer';
 import { Link } from 'react-router-dom';
 import heroImage from '../assets/img/hero_section_beach.jpeg';
 import SearchBar from '../components/SearchBar';
-import mockRooms from '../data/mockRooms';
 import RoomCard from '../components/RoomCard';
 import HotelCardList from '../components/HotelCardList';
 
 const Home = () => {
+    const { store, actions } = useContext(Context);
+
+    useEffect(() => {
+        if (store.rooms.length === 0) {
+            actions.getRooms();  
+        }
+    }, []);
+
     return (
         <>
             <div
@@ -24,11 +33,13 @@ const Home = () => {
                 <SearchBar />
             </div>
             <div className="row mt-4">
-                {
-                    mockRooms.map((room) => (
+                {store.rooms.length === 0 ? (
+                    <p className="text-center">Cargando habitaciones...</p>
+                ) : (
+                    store.rooms.map((room) => (
                         <RoomCard key={room.id} room={room} />
                     ))
-                }
+                )}
             </div>
         <HotelCardList />
         </>

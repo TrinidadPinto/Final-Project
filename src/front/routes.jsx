@@ -8,9 +8,7 @@ import {
 
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
-
 import { Signup } from "./pages/Signup"
-import { Demo } from "./pages/Demo";
 import LoginSession from "./components/LoginSession";
 import AddRoom from "./components/AddRoom";
 import RoomDetail from "./pages/RoomDetail";
@@ -28,9 +26,8 @@ export const router = createBrowserRouter(
 
 
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
-        <Route path= "/" element={<Home />} />
+        <Route index element={<Home />} />
         <Route path="/api/signup" element={ <Signup />} /> 
-        <Route path="/demo" element={<Demo />} />
         <Route path="/login" element={<LoginSession />} />
         <Route path="/addroom" element={<AddRoom />} />
         <Route path="/roomdetail/:id" element={<RoomDetail />} />

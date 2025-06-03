@@ -95,7 +95,7 @@ def update_profile(user_id):
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 
-@api.route('/rooms', methods=['POST', 'GET'])
+@api.route('/room', methods=['POST', 'GET'])
 def handle_rooms():
     if request.method == 'POST':
         data = request.get_json()
@@ -123,7 +123,7 @@ def handle_rooms():
         rooms = Room.query.all()
         return jsonify([room.serialize() for room in rooms]), 200
     
-@api.route('/rooms/<int:room_id>', methods=['PUT'])
+@api.route('/room/<int:room_id>', methods=['PUT'])
 @jwt_required()
 def update_room(room_id):
     user_id = get_jwt_identity()
@@ -149,7 +149,7 @@ def update_room(room_id):
     return jsonify({"msg": "Room updated successfully", "room": room.serialize()}), 200
 
 
-@api.route('/rooms/<int:room_id>', methods=['GET'])
+@api.route('/room/<int:room_id>', methods=['GET'])
 def get_room(room_id):
     room = Room.query.get(room_id)
     if not room:
@@ -157,7 +157,7 @@ def get_room(room_id):
     return jsonify(room.serialize()), 200
 
 
-@api.route('/rooms/<int:room_id>', methods=['DELETE'])
+@api.route('/room/<int:room_id>', methods=['DELETE'])
 @jwt_required()
 def delete_room(room_id):
     user_id = get_jwt_identity()
