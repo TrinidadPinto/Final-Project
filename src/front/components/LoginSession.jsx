@@ -4,9 +4,7 @@ import { useForm } from 'react-hook-form';
 
 
 const LoginSession = () => {
-  const [email, setEmail] = useState("")
-  const [pass, setPass] = useState("")
-
+  
   const {
     register,
     handleSubmit,
