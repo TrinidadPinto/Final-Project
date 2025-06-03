@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean, Float, Integer, ForeignKey, Date, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+import datetime
 
 db = SQLAlchemy()
 
@@ -62,8 +63,8 @@ class Booking(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=False)
-    check_in: Mapped[Date] = mapped_column(nullable=False)
-    check_out: Mapped[Date] = mapped_column(nullable=False)
+    check_in: Mapped[datetime.date] = mapped_column(Date,nullable=False)
+    check_out: Mapped[datetime.date] = mapped_column(Date,nullable=False)
     guests: Mapped[int] = mapped_column(nullable=False)
 
     user: Mapped["User"] = relationship("User", back_populates="bookings")  # Usuario que hizo la reserva

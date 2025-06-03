@@ -37,7 +37,7 @@ const CancelBooking = ({ bookingId }) => {
         onClick={handleCancelingReservation}
         disabled={selectedReservation}>
 
-        Cancel
+        Cancel Reservation
       </button>
 
     </div>
