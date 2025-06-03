@@ -32,16 +32,26 @@ const HotelCardList = () => {
         query: "man",
       });
 
+      const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
+      if (!apiKey) {
+        setError("⚠️ Falta la clave API (VITE_RAPIDAPI_KEY)");
+        return;
+      }
+
       const options = {
         method: "GET",
         headers: {
-          "X-RapidAPI-Key": import.meta.env.VITE_RAPIDAPI_KEY,
+          "X-RapidAPI-Key": apiKey,
           "X-RapidAPI-Host": "booking-com15.p.rapidapi.com",
         },
       };
 
       try {
         const res = await fetch(`${url}?${params}`, options);
+
+        if (res.status === 429) {
+          throw new Error("Demasiadas solicitudes. Intenta más tarde.");
+        }
 
         if (!res.ok) {
           throw new Error(`Error HTTP ${res.status}`);
@@ -56,7 +66,10 @@ const HotelCardList = () => {
       }
     };
 
-    fetchHotels();
+    // Llama a la API con retardo para evitar 429
+    const timeout = setTimeout(fetchHotels, 1500);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (error) {
@@ -104,7 +117,11 @@ const HotelCardList = () => {
                   onClick={() => toggleFavorite(hotelId)}
                   aria-label={isFavorite ? "Quitar de favoritos" : "Marcar como favorito"}
                 >
-                  {isFavorite ? <i class="fa-solid fa-heart"></i> : <i class="fa-regular fa-heart"></i>}
+                  {isFavorite ? (
+                    <i className="fa-solid fa-heart"></i>
+                  ) : (
+                    <i className="fa-regular fa-heart"></i>
+                  )}
                 </button>
               </div>
             </div>

@@ -3,6 +3,7 @@ import heroImage from '../assets/img/hero_section_beach.jpeg';
 import SearchBar from '../components/SearchBar';
 import mockRooms from '../data/mockRooms';
 import RoomCard from '../components/RoomCard';
+import HotelCardList from '../components/HotelCardList';
 
 const Home = () => {
     return (
@@ -29,7 +30,7 @@ const Home = () => {
                     ))
                 }
             </div>
-
+        <HotelCardList />
         </>
     );
 }
