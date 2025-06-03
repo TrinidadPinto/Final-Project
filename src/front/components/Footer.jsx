@@ -1,7 +1,7 @@
 import React from "react";
-import "./Footer.css"; 
+import "./Footer.css";
 
-const Footer = () => {
+export const Footer = () => {
     return (
         <>
             <footer className="footer-section">
@@ -58,7 +58,7 @@ const Footer = () => {
 
                             <h6 className="footer-heading mt-4">Newsletter</h6>
                             <form className="newsletter-form">
-                                <input type="email" className="form-control px-2" placeholder="Your Email" />
+                                <input type="email" id="email" className="form-control px-2" autoComplete="off" placeholder="Your Email" />
                                 <button type="submit" className="btn btn-green mx-2">Sign Up</button>
                             </form>
                         </div>
@@ -80,4 +80,5 @@ const Footer = () => {
     );
 };
 
-export default Footer;
+
+

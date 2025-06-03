@@ -1,9 +1,6 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_bcrypt import Bcrypt
-from api.models import db, User
+from api.models import db, User, Room
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token
@@ -25,7 +22,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
-@api.route('/signup', methods=['POST'])
+@api.route('/signup', methods=['POST'])                              #REGISTRARSE
 def signup():
     data = request.get_json()
     email = data.get("email")
@@ -53,7 +50,7 @@ def signup():
     return jsonify({"msg": "User created successfully"}), 201
 
 
-@api.route('/login', methods=['POST'])
+@api.route('/login', methods=['POST'])                             #INICIO DE SESION
 def login():
     data = request.get_json()
     email = data.get("email")
@@ -68,8 +65,10 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
 
-
-
+@api.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200
 
 @api.route("/protected", methods=["GET"])
 @jwt_required()
@@ -78,7 +77,7 @@ def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
 
-@api.route('/update-profile/<int:user_id>', methods=['PUT'])
+@api.route('/update-profile/<int:user_id>', methods=['PUT'])        #EDITAR PERFIL
 def update_profile(user_id):
     data = request.get_json()
 
@@ -96,3 +95,70 @@ def update_profile(user_id):
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
 
+@api.route('/rooms', methods=['POST', 'GET'])
+def handle_rooms():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        required_fields = ["title", "description", "photos", "capacity", "price", "host_id"]
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"msg": f"{field} is required"}), 400
+
+        room = Room(
+            title=data["title"],
+            description=data["description"],
+            photos=",".join(data.get("photos", [])),
+            rules=data.get("rules", ""),
+            capacity=data["capacity"],
+            price=data["price"],
+            host_id=data["host_id"]
+        )
+        db.session.add(room)
+        db.session.commit()
+
+        return jsonify({"msg": "Room created", "room": room.serialize()}), 201
+    
+    elif request.method == 'GET':
+        rooms = Room.query.all()
+        return jsonify([room.serialize() for room in rooms]), 200
+    
+@api.route('/rooms/<int:room_id>', methods=['PUT'])
+def update_room(room_id):
+    data = request.get_json()
+
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({"msg": "Room not found"}), 404
+    
+    room.title = data.get("title", room.title)
+    room.description = data.get("description", room.description)
+    room.photo_url = data.get("photo_url", room.photo_url)
+    room.rules = data.get("rules", room.rules)
+    room.capacity = data.get("capacity", room.capacity)
+    room.price = data.get("price", room.price)
+
+    db.session.commit()
+
+    return jsonify({"msg": "Room updated successfully", "room": room.serialize()}), 200
+
+
+@api.route('/rooms/<int:room_id>', methods=['GET'])
+def get_room(room_id):
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({"msg": "Room not found"}), 404
+    return jsonify(room.serialize()), 200
+
+
+@api.route('/rooms/<int:room_id>', methods=['DELETE'])
+def delete_room(room_id):
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({"msg": "Room not found"}), 404
+    
+
+    db.session.delete(room)
+    db.session.commit()
+
+    return jsonify({"msg": "Room deleted succsessfully"}), 200
