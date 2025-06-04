@@ -30,7 +30,6 @@ export default function RoomDetail() {
         console.log("Reserva:", data);
     };
 
-    if (loading) return <div>Cargando habitación...</div>;
     if (!room) return <div>Habitación no encontrada...</div>;
 
     return (
