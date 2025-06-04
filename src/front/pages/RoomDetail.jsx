@@ -1,15 +1,30 @@
 import { useParams } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../hooks/useGlobalReducer";
 import { Link } from "react-router-dom";
-import placeHolderImg from "../assets/img/elementor-placeholder-image.webp";
+import placeholderImg from "../assets/img/elementor-placeholder-image.webp";
 import { useForm } from "react-hook-form";
 import MapView from "../components/Mapview";
 
 export default function RoomDetail() {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
-    const room = actions.getRoomById(id);
+    const [ room, setRoom ] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRoom = async() => {
+            if (store.rooms.length === 0) {
+                await actions.getRooms();
+            }
+            console.log("store.rooms:", store.rooms);
+            const foundRoom = actions.getRoomById(id);
+            console.log("Buscando room con id:", id, "Resultado:", foundRoom);
+            setRoom(foundRoom);
+            setLoading(false);
+        };
+        fetchRoom();
+    }, [id]);
 
     const {
         register,
@@ -21,6 +36,7 @@ export default function RoomDetail() {
         console.log("Reserva:", data);
     };
 
+    if (loading) return <div>Cargando habitación...</div>;
     if (!room) return <div>Habitación no encontrada...</div>;
 
     return (
@@ -28,16 +44,16 @@ export default function RoomDetail() {
             <h2>{room.title}</h2>
             <div className="row">
                 <div className="col-md-6">
-                    <img src={placeHolderImg} alt="" style={{width: "100%",}} />
+                    <img src={placeholderImg} alt="" style={{width: "100%",}} />
                 </div>
                 <div className="col-md-6">
                     <div className="row">
-                        <img src={placeHolderImg} alt="" className="col-md-6" />
-                        <img src={placeHolderImg} alt="" className="col-md-6" />
+                        <img src={placeholderImg} alt="" className="col-md-6" />
+                        <img src={placeholderImg} alt="" className="col-md-6" />
                     </div>
                     <div className="row mt-3">
-                        <img src={placeHolderImg} alt="" className="col-md-6" />
-                        <img src={placeHolderImg} alt="" className="col-md-6" />
+                        <img src={placeholderImg} alt="" className="col-md-6" />
+                        <img src={placeholderImg} alt="" className="col-md-6" />
                     </div>
                 </div>
             </div>

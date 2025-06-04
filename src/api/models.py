@@ -17,8 +17,8 @@ class User(db.Model):
     city: Mapped[str] = mapped_column(nullable=True)
     country: Mapped[str] = mapped_column(nullable=True)
 
-    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host")  # Habitaciones que el usuario ha subido como anfitrión
-    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="user")  # Reservas hechas por este usuario
+    rooms: Mapped[list["Room"]] = relationship("Room", back_populates="host", foreign_keys="[Room.host_id]")
+    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="user")
 
     def serialize(self):
         return {
@@ -43,22 +43,18 @@ class Room(db.Model):
     price: Mapped[float] = mapped_column(nullable=False)
     host_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
-    host: Mapped["User"] = relationship("User", back_populates="rooms")  # Usuario que publicó la habitación
-    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="room")  # Reservas de esta habitación
-
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
-    user = relationship("User", backref="rooms")
+    host: Mapped["User"] = relationship("User", back_populates="rooms", foreign_keys=[host_id])
+    bookings: Mapped[list["Booking"]] = relationship("Booking", back_populates="room")
 
     def serialize(self):
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "photos": self.photo_url.split(","),
+            "photo_url": self.photo_url.split(","),
             "rules": self.rules,
             "capacity": self.capacity,
             "price": self.price,
-            "photos": [photo.serialize() for photo in self.photos],
             "host_id": self.host_id
         }
 
@@ -71,8 +67,8 @@ class Booking(db.Model):
     check_out: Mapped[datetime.date] = mapped_column(Date,nullable=False)
     guests: Mapped[int] = mapped_column(nullable=False)
 
-    user: Mapped["User"] = relationship("User", back_populates="bookings")  # Usuario que hizo la reserva
-    room: Mapped["Room"] = relationship("Room", back_populates="bookings")  # Habitación reservada
+    user: Mapped["User"] = relationship("User", back_populates="bookings")
+    room: Mapped["Room"] = relationship("Room", back_populates="bookings")
 
     def serialize(self):
         return {

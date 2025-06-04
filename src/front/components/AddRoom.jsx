@@ -8,7 +8,7 @@ export default function AddRoom() {
     const [form, setForm] = useState({
         title: "",
         description: "",
-        photos: "",
+        photo_url: "",
         rules: "",
         capacity: "",
         price: ""
@@ -27,7 +27,7 @@ export default function AddRoom() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 ...form,
-                photos: form.photos.split(",").map(p => p.trim()),
+                photo_url: form.photo_url.split(",").map(p => p.trim()),
                 host_id: parseInt(host_id)
             })
         });
@@ -39,7 +39,7 @@ export default function AddRoom() {
             setForm({
                 title: "",
                 description: "",
-                photos: "",
+                photo_url: "",
                 rules: "",
                 capacity: "",
                 price: ""
@@ -49,7 +49,7 @@ export default function AddRoom() {
             alert(data.msg || "Error al publicar habitación");
         }
     };
-    const photoUrls = form.photos.split(",").map(p => p.trim()).filter(Boolean);
+    const photoUrls = form.photo_url.split(",").map(p => p.trim()).filter(Boolean);
 
     return (
         <form onSubmit={handleSubmit} className="p-4 max-w-lg mx-auto">
@@ -89,7 +89,7 @@ export default function AddRoom() {
                     name="photos"
                     className="form-control"
                     placeholder="URLs de fotos separadas por coma"
-                    value={form.photos}
+                    value={form.photo_url}
                     onChange={handleChange}
                     required
                 />

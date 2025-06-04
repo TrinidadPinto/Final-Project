@@ -108,7 +108,7 @@ def handle_rooms():
         room = Room(
             title=data["title"],
             description=data["description"],
-            photos=",".join(data.get("photos", [])),
+            photo_url=",".join(data.get("photos", [])),
             rules=data.get("rules", ""),
             capacity=data["capacity"],
             price=data["price"],

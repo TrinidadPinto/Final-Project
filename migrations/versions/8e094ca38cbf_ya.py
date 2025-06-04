@@ -1,8 +1,8 @@
-"""Unificar migraciones
+"""ya
 
-Revision ID: 0c22f75c76da
-Revises: 38a59778c833
-Create Date: 2025-06-03 22:09:52.866866
+Revision ID: 8e094ca38cbf
+Revises: 0c22f75c76da
+Create Date: 2025-06-04 00:10:16.737592
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0c22f75c76da'
-down_revision = '38a59778c833'
+revision = '8e094ca38cbf'
+down_revision = '0c22f75c76da'
 branch_labels = None
 depends_on = None
 
