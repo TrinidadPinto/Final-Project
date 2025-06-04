@@ -34,7 +34,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             getRooms: async () => {
               try {
-                const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room`);
+                const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/room`);
                 if (!resp.ok) throw new Error("Error al obtener las habitaciones");
                 const data = await resp.json();
                 setStore({ rooms: data });

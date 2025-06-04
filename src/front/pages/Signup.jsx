@@ -6,9 +6,9 @@ export function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = "https://sturdy-zebra-qrrwg6q6q942659j-3001.app.github.dev/api";
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const validarEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);

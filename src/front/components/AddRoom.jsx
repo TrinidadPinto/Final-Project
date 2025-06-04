@@ -15,7 +15,7 @@ export default function AddRoom() {
         address: ""
     });
 
-    const API_BASE_URL = "https://sturdy-zebra-qrrwg6q6q942659j-3001.app.github.dev/api";
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });

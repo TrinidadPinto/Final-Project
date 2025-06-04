@@ -18,7 +18,7 @@ const LoginSession = () => {
   const capturaDatos = async (info) => {
    
     try {
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "api/login", {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL+"/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(info)
