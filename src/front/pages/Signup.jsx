@@ -4,6 +4,7 @@ export function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); 
 
@@ -29,6 +30,10 @@ export function Signup() {
       setError("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
 
     setLoading(true);
     console.log(import.meta.env.VITE_BACKEND_URL)
@@ -47,6 +52,7 @@ export function Signup() {
         setName("");
         setEmail("");
         setPassword("");
+        setConfirmPassword("");
       } else {
         setError(data.message || "Error al registrarse.");
       }
@@ -80,18 +86,18 @@ export function Signup() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="Tu nombre"
+              placeholder="Nombre Apellido"
             />
           </div>
         </div>
 
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">
+          <label htmlFor="singupEmail" className="form-label">
             Correo electrónico
           </label>
           <input
             type="email"
-            id="email"
+            id="signupEmail"
             className="form-control"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -112,6 +118,21 @@ export function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="Mínimo 6 caracteres"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="confirmPassword" className="form-label">
+            Confirmar contraseña *
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            className="form-control"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            placeholder="Repite la contraseña"
           />
         </div>
 

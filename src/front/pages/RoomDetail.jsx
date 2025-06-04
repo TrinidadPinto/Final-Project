@@ -1,36 +1,30 @@
 import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Context } from "../hooks/useGlobalReducer";
 import { Link } from "react-router-dom";
 import placeholderImg from "../assets/img/elementor-placeholder-image.webp";
 import { useForm } from "react-hook-form";
 import MapView from "../components/Mapview";
+import { findRenderedDOMComponentWithClass } from "react-dom/test-utils";
 
 export default function RoomDetail() {
     const { id } = useParams();
-    const { store, actions } = useContext(Context);
+    const { actions } = useContext(Context);
     const [ room, setRoom ] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchRoom = async() => {
-            if (store.rooms.length === 0) {
-                await actions.getRooms();
-            }
-            console.log("store.rooms:", store.rooms);
-            const foundRoom = actions.getRoomById(id);
-            console.log("Buscando room con id:", id, "Resultado:", foundRoom);
-            setRoom(foundRoom);
-            setLoading(false);
-        };
-        fetchRoom();
-    }, [id]);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
+
+    useEffect(() => {
+        const fetchRoom = async () => {
+            const fetchedRoom = await actions.getRoomById(id);
+            setRoom(fetchedRoom);
+        };
+        fetchRoom();
+    }, [id]);
 
     const onSubmit = (data) => {
         console.log("Reserva:", data);
@@ -60,7 +54,11 @@ export default function RoomDetail() {
             <div className="row">
                 <div className="col-md-9">
                     <p>{room.description}</p>
-                    <MapView lat={room.lat} lng={room.lng} address={room.address} />
+                    {room.lat && room.lng ? (
+                        <MapView lat={room.lat} lng={room.lng} address={room.address} />
+                    ) : (
+                        <p><em>Ubicación no disponible.</em></p>
+                    )}
                 </div>
                 <div className="col-md-3 ">
                     <form onSubmit={handleSubmit(onSubmit)} className="shadow p-3 mb-5 bg-body-tertiary rounded" >

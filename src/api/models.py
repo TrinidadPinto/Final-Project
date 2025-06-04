@@ -1,5 +1,7 @@
+from turtle import title
+import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, Float, Integer, ForeignKey, Date, Text
+from sqlalchemy import String, Boolean, Float, Integer, ForeignKey, Date, Text, Date, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime
 
@@ -41,6 +43,9 @@ class Room(db.Model):
     rules: Mapped[str] = mapped_column(nullable=True)
     capacity: Mapped[int] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
+    address: Mapped[str] = mapped_column(String(255), nullable=False)
+    lat: Mapped[float] = mapped_column(Float, nullable=True)
+    lng: Mapped[float] = mapped_column(Float, nullable=True)
     host_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
     host: Mapped["User"] = relationship("User", back_populates="rooms", foreign_keys=[host_id])
@@ -55,6 +60,9 @@ class Room(db.Model):
             "rules": self.rules,
             "capacity": self.capacity,
             "price": self.price,
+            "address": self.address,
+            "lat": self.lat,
+            "lng": self.lng,
             "host_id": self.host_id
         }
 

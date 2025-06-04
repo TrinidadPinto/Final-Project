@@ -14,10 +14,24 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error al obtener habitaciones:", error);
                 }
             },
-            getRoomById: (id) => {
+            getRoomById: async (id) => {
                 const store = getStore();
-                return store.rooms.find(room => room.id === parseInt(id));
+                const roomId = parseInt(id);
+                let room = store.rooms.find(room => room.id === roomId);
+                if (!room) {
+                    try {
+                        const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room/${roomId}`);
+                        if (!resp.ok) throw new Error("Error al mostrar habitación");
+                        room = await resp.json();
+                        setStore({ rooms: [...store.rooms, room] });
+                    } catch (error) {
+                        console.error("Error cargando habitación desde la API:", error);
+                        return null;
+                    }
+                }
+                return room;
             },
+
             getRooms: async () => {
               try {
                 const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room`);

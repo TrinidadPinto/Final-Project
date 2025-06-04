@@ -1,16 +1,15 @@
-
 import React, { useState } from "react";
 import { useForm } from 'react-hook-form';
-
+import { useNavigate } from "react-router-dom";
 
 const LoginSession = () => {
-  
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors }
-
   } = useForm()
 
   const password = watch('password', '')
@@ -23,13 +22,21 @@ const LoginSession = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(info)
-      })
+      });
       const data = await response.json()
       console.log(data)
+      if (response.ok) {
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("token", data.user.id);
+        navigate("/");
+      } else {
+        alert(data.msg || "Error al iniciar sesión");
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      alert("Error de conexión");
     }
-  }
+  };
   return (
 
     <div className="container">
@@ -38,9 +45,9 @@ const LoginSession = () => {
 
       <form className="w-60 mx-auto my-3 justify-content-center col-md-3" onSubmit={handleSubmit(capturaDatos)}>
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email address</label>
+          <label htmlFor="loginEmail" className="form-label">Email address</label>
           <input type="email" className={"form-control " + (errors.email ? 'is-invalid' : '')}
-            id="email"
+            id="loginEmail"
 
             {
             ...register('email', {
