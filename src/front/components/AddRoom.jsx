@@ -11,7 +11,8 @@ export default function AddRoom() {
         photos: "",
         rules: "",
         capacity: "",
-        price: ""
+        price: "",
+        address: ""
     });
 
     const API_BASE_URL = "https://sturdy-zebra-qrrwg6q6q942659j-3001.app.github.dev/api";
@@ -42,7 +43,8 @@ export default function AddRoom() {
                 photos: "",
                 rules: "",
                 capacity: "",
-                price: ""
+                price: "",
+                address: ""
             });
             navigate("/room");
         } else {
@@ -54,7 +56,7 @@ export default function AddRoom() {
     return (
         <form onSubmit={handleSubmit} className="p-4 max-w-lg mx-auto">
             <div className="mb-3">
-                <label htmlFor="title" className="form-label">Titulo *</label>
+                <label htmlFor="title" className="form-label">Título *</label>
                 <input
                     type="text"
                     id="title"
@@ -67,28 +69,44 @@ export default function AddRoom() {
                 />
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="description" className="form-label">Descripcion *</label>
-                <textarea
-                    id="description"
-                    name="description"
-                    className="form-control"
-                    placeholder="Descripcion"
-                    rows="3"
-                    value={form.description}
-                    onChange={handleChange}
-                    required
-                />
+            <div className="row mb-3">
+                <div className="form-group col">
+                    <label htmlFor="description" className="form-label">Descripción *</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        className="form-control"
+                        placeholder="Descripción"
+                        rows="3"
+                        value={form.description}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group col">
+                    <label htmlFor="address" className="form-label">Dirección *</label>
+                    <textarea
+                        id="address"
+                        name="address"
+                        className="form-control"
+                        placeholder="Ingresar la dirección exacta"
+                        rows="2"
+                        value={form.address}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
             </div>
 
             <div className="mb-3">
-                <label htmlFor="photos" className="form-label">Imagenes *</label>
+                <label htmlFor="photos" className="form-label">Imágenes *</label>
                 <input
                     type="text"
                     id="photos"
                     name="photos"
                     className="form-control"
                     placeholder="URLs de fotos separadas por coma"
+                    rows="3"
                     value={form.photos}
                     onChange={handleChange}
                     required
@@ -121,7 +139,7 @@ export default function AddRoom() {
                         id="capacity"
                         name="capacity"
                         className="form-control"
-                        placeholder="Cantidad de personas"
+                        placeholder="Capacidad de personas"
                         value={form.capacity}
                         onChange={handleChange}
                         required
