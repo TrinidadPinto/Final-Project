@@ -15,7 +15,7 @@ const RoomCard = () => {
                 {rooms.map(room => (
                     <div className="col" key={room.id}>
                         <div className="card h-100">
-                            <img src={placeHolderImg} className="card-img-top" alt="room" />
+                            <img src={placeholderImg} className="card-img-top" alt="room" />
                             <div className="card-body">
                                 <h5 className="card-title">{room.title}</h5>
                                 <p className="card-text">{room.description}</p>
