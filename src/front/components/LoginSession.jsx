@@ -27,7 +27,8 @@ const LoginSession = () => {
       console.log(data)
       if (response.ok) {
         localStorage.setItem("jwt-token", data.access_token); // JWT
-        localStorage.setItem("user_id", data.user.id);    // ID de usuario
+        localStorage.setItem("user_id", data.user.id); 
+        window.dispatchEvent(new Event("storage"));   // ID de usuario
         navigate("/");
       } else {
         alert(data.msg || "Error al iniciar sesión");

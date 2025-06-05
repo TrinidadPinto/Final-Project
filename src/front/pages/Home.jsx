@@ -11,9 +11,7 @@ const Home = () => {
 
 
     useEffect(() => {
-        if (store.rooms.length === 0) {
-            actions.getRooms();
-        }
+        actions.getRooms();
     }, []);
 
     const handleSearch = ({ checkIn, checkOut, destination, guests }) => {
