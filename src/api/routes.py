@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_bcrypt import Bcrypt
-from api.models import db, User, Room
+from api.models import db, User, Room, Booking
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+from datetime import datetime, timedelta
 
 
 api = Blueprint('api', __name__)
@@ -199,3 +200,90 @@ def get_my_rooms():
     user_id = get_jwt_identity()
     rooms = Room.query.filter_by(user_id=user_id).all()
     return jsonify([room.serialize() for room in rooms]), 200
+
+
+@api.route('/my-bookings', methods=['GET'])
+@jwt_required()
+def get_my_bookings():
+    user_id = get_jwt_identity()
+    bookings = Booking.query.filter_by(user_id=user_id).all()
+    result = []
+    for booking in bookings:
+        booking_data = booking.serialize()
+        room = Room.query.get(booking.room_id)
+        booking_data['room'] = room.serialize() if room else None
+        result.append(booking_data)
+    return jsonify(result), 200
+
+
+@api.route('/booking', methods=['POST'])
+@jwt_required()
+def add_booking():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    room_id = data.get('room_id')
+    check_in = data.get('check_in')
+    check_out = data.get('check_out')
+    guests = data.get('guests')
+
+    if not all([room_id, check_in, check_out, guests]):
+        return jsonify({'msg': 'Faltan datos para la reserva'}), 400
+
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({'msg': 'Habitación no encontrada'}), 404
+
+    try:
+        check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+        check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
+    except Exception:
+        return jsonify({'msg': 'Formato de fecha inválido, debe ser YYYY-MM-DD'}), 400
+
+    overlapping = Booking.query.filter(
+        Booking.room_id == room_id,
+        Booking.check_out > check_in_date,
+        Booking.check_in < check_out_date
+    ).first()
+    if overlapping:
+        return jsonify({'msg': 'La habitación ya está reservada para esas fechas'}), 409
+
+    # Crear la reserva
+    booking = Booking(
+        user_id=user_id,
+        room_id=room_id,
+        check_in=check_in_date,
+        check_out=check_out_date,
+        guests=guests
+    )
+    db.session.add(booking)
+    db.session.commit()
+    return jsonify({'msg': 'Reserva creada exitosamente', 'booking': booking.serialize()}), 201
+
+
+@api.route('/delete-booking/<int:booking_id>', methods=['DELETE'])
+@jwt_required()
+def delete_booking(booking_id):
+    user_id = get_jwt_identity()
+    booking = Booking.query.get(booking_id)
+    if not booking:
+        return jsonify({'msg': 'Reserva no encontrada'}), 404
+    if booking.user_id != int(user_id):
+        return jsonify({'msg': 'No autorizado para cancelar esta reserva'}), 403
+    db.session.delete(booking)
+    db.session.commit()
+    return jsonify({'msg': 'Reserva eliminada exitosamente'}), 200
+
+
+@api.route('/room/<int:room_id>/booked-dates', methods=['GET'])
+def get_booked_dates(room_id):
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({'msg': 'Room not found'}), 404
+    bookings = Booking.query.filter_by(room_id=room_id).all()
+    booked_dates = []
+    for booking in bookings:
+        current = booking.check_in
+        while current <= booking.check_out:
+            booked_dates.append(current.strftime('%Y-%m-%d'))
+            current += timedelta(days=1)
+    return jsonify({'booked_dates': booked_dates}), 200
