@@ -7,6 +7,8 @@ import RoomCard from '../components/RoomCard';
 
 const Home = () => {
     const { store, actions } = useContext(Context);
+    const [filteredRooms, setFilteredRooms] = useState(null);
+
 
     useEffect(() => {
         if (store.rooms.length === 0) {
@@ -43,13 +45,15 @@ const Home = () => {
             </div>
 
             <div className="row mt-4 g-4">
-                {store.rooms.length === 0 ? (
-                    <p className="text-center">Cargando habitaciones...</p>
-                ) : (
-                    store.rooms.map((room) => (
-                        <RoomCard key={room.id} room={room} />
-                    ))
-                )}
+                <div className="row mt-4">
+                    {roomsToShow.length === 0 ? (
+                        <p className="text-center">No se encontraron habitaciones.</p>
+                    ) : (
+                        roomsToShow.map((room) => (
+                            <RoomCard key={room.id} room={room} />
+                        ))
+                    )}
+                </div>
             </div>
 
         </>
