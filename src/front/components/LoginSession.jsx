@@ -16,9 +16,9 @@ const LoginSession = () => {
 
 
   const capturaDatos = async (info) => {
-   
+
     try {
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL+"/login", {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(info)
@@ -26,8 +26,8 @@ const LoginSession = () => {
       const data = await response.json()
       console.log(data)
       if (response.ok) {
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("token", data.user.id);
+        localStorage.setItem("jwt-token", data.access_token); // JWT
+        localStorage.setItem("user_id", data.user.id);    // ID de usuario
         navigate("/");
       } else {
         alert(data.msg || "Error al iniciar sesión");

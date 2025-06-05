@@ -11,7 +11,7 @@ const Home = () => {
 
     useEffect(() => {
         if (store.rooms.length === 0) {
-            actions.getRooms();  
+            actions.getRooms();
         }
     }, []);
 
@@ -32,7 +32,7 @@ const Home = () => {
             <div className="bg-white p-4 rounded shadow position-relative z-1 mx-auto" style={{ maxWidth: '900px', marginTop: '-40px' }}>
                 <SearchBar />
             </div>
-            <div className="row mt-4">
+            <div className="row mt-4 g-4">
                 {store.rooms.length === 0 ? (
                     <p className="text-center">Cargando habitaciones...</p>
                 ) : (
@@ -41,7 +41,7 @@ const Home = () => {
                     ))
                 )}
             </div>
-        <HotelCardList />
+
         </>
     );
 }
