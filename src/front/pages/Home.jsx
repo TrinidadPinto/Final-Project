@@ -11,8 +11,8 @@ const Home = () => {
 
     useEffect(() => {
         if (store.rooms.length === 0) {
-            actions.getRooms();  
-        } 
+            actions.getRooms();
+        }
     }, []);
 
     const handleSearch = ({ checkIn, checkOut, destination, guests }) => {
@@ -42,6 +42,11 @@ const Home = () => {
             <div className="bg-white p-4 rounded shadow position-relative z-1 mx-auto" style={{ maxWidth: '900px', marginTop: '-40px' }}>
                 <SearchBar onSearch={handleSearch} />
             </div>
+
+            <div className="row mt-4 g-4">
+                {store.rooms.length === 0 ? (
+                    <p className="text-center">Cargando habitaciones...</p>
+
             <div className="row mt-4">
                 {roomsToShow.length === 0 ? (
                     <p className="text-center">No se encontraron habitaciones.</p>

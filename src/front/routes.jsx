@@ -12,6 +12,7 @@ import { Signup } from "./pages/Signup"
 import LoginSession from "./components/LoginSession";
 import AddRoom from "./components/AddRoom";
 import RoomDetail from "./pages/RoomDetail";
+import Profile from "./pages/Profile"
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -31,6 +32,7 @@ export const router = createBrowserRouter(
         <Route path="/login" element={<LoginSession />} />
         <Route path="/addroom" element={<AddRoom />} />
         <Route path="/roomdetail/:id" element={<RoomDetail />} />
+        <Route path="/profile/:user_id" element={<Profile/>} />
 
 
         </Route>
