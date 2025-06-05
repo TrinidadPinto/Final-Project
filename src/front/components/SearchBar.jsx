@@ -9,8 +9,8 @@ const SearchBar = () => {
   } = useForm(); 
 
   const onSubmit = data => {
+    onSearch(data);
     console.log('Datos del formulario:', data);
-    // Aquí podrías enviar los datos a una API, filtrar resultados, etc.
   };
 
   return (
@@ -23,7 +23,7 @@ const SearchBar = () => {
           {...register("checkIn", { required: true })}
         />
         {errors.checkIn && (
-          <small className="text-danger">Check-in is required</small>
+          <small className="text-danger">El check-in es obligatorio</small>
         )}
       </div>
       <div className="col-6 col-md-2">
@@ -34,11 +34,11 @@ const SearchBar = () => {
           {...register("checkOut", { required: true })}
         />
         {errors.checkOut && (
-          <small className="text-danger">Check-out is required</small>
+          <small className="text-danger">El check-out es obligatorio</small>
         )}
       </div>
       <div className="col-12 col-md-4">
-        <label className="form-label mb-1 small">Destination</label>
+        <label className="form-label mb-1 small">Destino</label>
         <input
           type="text"
           className="form-control"
@@ -46,11 +46,11 @@ const SearchBar = () => {
           {...register("destination", { required: true })}
         />
         {errors.destination && (
-          <small className="text-danger">You must pick a destination</small>
+          <small className="text-danger">Debe elegir un destino</small>
         )}
       </div>
       <div className="col-6 col-md-2">
-        <label className="form-label mb-1 small">Guests</label>
+        <label className="form-label mb-1 small">Huéspedes</label>
         <input
           type="number"
           className="form-control"
@@ -64,7 +64,7 @@ const SearchBar = () => {
       </div>
       <div className="col-6 col-md-2 d-flex align-items-end">
         <button className="btn btn-primary w-100" type="submit">
-          Search
+          Filtrar
         </button>
       </div>
     </form>
