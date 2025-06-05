@@ -115,7 +115,7 @@ def handle_rooms():
         data = request.get_json()
 
         required_fields = ["title", "description", "photos",
-                           "capacity", "price", "address", "host_id"]
+                           "capacity", "price", "address", "lat", "lng", "host_id"]
         for field in required_fields:
             if not data.get(field):
                 return jsonify({"msg": f"{field} is required"}), 400
@@ -127,10 +127,12 @@ def handle_rooms():
             description=data["description"],
             photo_url=photo_url,
             rules=data.get("rules", ""),
-            capacity=data["capacity"],
-            price=data["price"],
+            capacity=int(data["capacity"]),
+            price=float(data["price"]),
             address=data["address"],
-            host_id=data["host_id"]
+            lat=float(data["lat"]),
+            lng=float(data["lng"]),
+            host_id=int(data["host_id"])
         )
         db.session.add(room)
         db.session.commit()
