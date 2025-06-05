@@ -12,7 +12,9 @@ export default function AddRoom() {
         rules: "",
         capacity: "",
         price: "",
-        address: ""
+        address: "",
+        lat:"",
+        lng:""
     });
 
     const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -44,7 +46,9 @@ export default function AddRoom() {
                 rules: "",
                 capacity: "",
                 price: "",
-                address: ""
+                address: "",
+                lat:"",
+                lng:""
             });
             navigate("/room");
         } else {
@@ -84,41 +88,67 @@ export default function AddRoom() {
                     />
                 </div>
                 <div className="form-group col">
+                    <label htmlFor="photos" className="form-label">Imágenes *</label>
+                    <input
+                        type="text"
+                        id="photos"
+                        name="photos"
+                        className="form-control"
+                        placeholder="URLs de fotos separadas por coma"
+                        rows="3"
+                        value={form.photos}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                {photoUrls.length > 0 && (
+                    <div className="mb-3 d-flex flex-wrap gap-2">
+                        {photoUrls.map((url,i) => (
+                            <img key={i} src={url} alt={`foto ${i}`} style={{width:"100px", height:"100px", objectFit:"cover" }} />
+                            ))}
+                    </div>
+                )}
+            </div>
+            <div className="row mb-3">
+                <div className="form-group col-md-6">
                     <label htmlFor="address" className="form-label">Dirección *</label>
                     <textarea
                         id="address"
                         name="address"
                         className="form-control"
                         placeholder="Ingresar la dirección exacta"
-                        rows="2"
                         value={form.address}
                         onChange={handleChange}
                         required
                     />
                 </div>
-            </div>
-
-            <div className="mb-3">
-                <label htmlFor="photos" className="form-label">Imágenes *</label>
-                <input
-                    type="text"
-                    id="photos"
-                    name="photos"
-                    className="form-control"
-                    placeholder="URLs de fotos separadas por coma"
-                    rows="3"
-                    value={form.photos}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-            {photoUrls.length > 0 && (
-                <div className="mb-3 d-flex flex-wrap gap-2">
-                    {photoUrls.map((url,i) => (
-                        <img key={i} src={url} alt={`foto ${i}`} style={{width:"100px", height:"100px", objectFit:"cover" }} />
-                    ))}
+                <div className="form-group col">
+                    <label htmlFor="lat" className="form-label">Lat *</label>
+                    <input
+                        type="float"
+                        id="lat"
+                        name="lat"
+                        className="form-control"
+                        placeholder="Lat"
+                        value={form.lat}
+                        onChange={handleChange}
+                        required
+                    />
                 </div>
-            )}
+                <div className="form-group col">
+                    <label htmlFor="lng" className="form-label">Lng *</label>
+                    <input
+                        type="float"
+                        id="lng"
+                        name="lng"
+                        className="form-control"
+                        placeholder="Lng"
+                        value={form.lng}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+            </div>
             <div className="row mb-3">
                 <div className="form-group col">
                     <label htmlFor="rules" className="form-label">Reglas</label>
