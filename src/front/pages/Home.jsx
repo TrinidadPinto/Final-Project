@@ -1,3 +1,4 @@
+import "./Home.css";
 import { useContext, useEffect, useState } from 'react';
 import { Context } from '../hooks/useGlobalReducer';
 import { Link } from 'react-router-dom';
@@ -25,36 +26,37 @@ const Home = () => {
     const roomsToShow = filteredRooms ?? store.rooms;
 
     return (
-        <>
-            <div
-                className="hero-section position-relative d-flex align-items-center justify-content-center"
-                style={{
-                    backgroundImage: `url(${heroImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    minHeight: '320px',
-                    borderRadius: '16px',
-                }}
-            >
-                <h2 className="text-white fw-semibold display-6 text-shadow">Encuentra tu próxima aventura</h2>
-            </div>
-            <div className="bg-white p-4 rounded shadow position-relative z-1 mx-auto" style={{ maxWidth: '900px', marginTop: '-40px' }}>
-                <SearchBar onSearch={handleSearch} />
-            </div>
+        <div className="page-bg">
+            <div className="container">
+                <div
+                    className="hero-section position-relative d-flex align-items-center justify-content-center"
+                    style={{
+                        backgroundImage: `url(${heroImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        minHeight: '320px',
+                        borderRadius: '16px',
+                    }}
+                >
+                    <h2 className="text-white fw-semibold display-6 text-shadow">Encuentra tu próxima aventura</h2>
+                </div>
+                <div className="bg-white p-4 rounded shadow position-relative z-1 mx-auto" style={{ maxWidth: '900px', marginTop: '-40px' }}>
+                    <SearchBar onSearch={handleSearch} />
+                </div>
 
-            <div className="row mt-4 g-4">
-                <div className="row mt-4">
-                    {roomsToShow.length === 0 ? (
-                        <p className="text-center">No se encontraron habitaciones.</p>
-                    ) : (
-                        roomsToShow.map((room) => (
-                            <RoomCard key={room.id} room={room} />
-                        ))
-                    )}
+                <div className="row mt-4 g-4">
+                    <div className="row mt-4">
+                        {roomsToShow.length === 0 ? (
+                            <p className="text-center">No se encontraron habitaciones.</p>
+                        ) : (
+                            roomsToShow.map((room) => (
+                                <RoomCard key={room.id} room={room} />
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
-
-        </>
+        </div>
     );
 }
 
