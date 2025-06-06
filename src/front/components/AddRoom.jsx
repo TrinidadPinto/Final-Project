@@ -13,8 +13,9 @@ export default function AddRoom() {
         capacity: "",
         price: "",
         address: "",
-        lat:"",
-        lng:""
+        city: "",
+        lat: "",
+        lng: ""
     });
 
     const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -47,8 +48,9 @@ export default function AddRoom() {
                 capacity: "",
                 price: "",
                 address: "",
-                lat:"",
-                lng:""
+                city: "",
+                lat: "",
+                lng: ""
             });
             navigate("/room");
         } else {
@@ -103,9 +105,9 @@ export default function AddRoom() {
                 </div>
                 {photoUrls.length > 0 && (
                     <div className="mb-3 d-flex flex-wrap gap-2">
-                        {photoUrls.map((url,i) => (
-                            <img key={i} src={url} alt={`foto ${i}`} style={{width:"100px", height:"100px", objectFit:"cover" }} />
-                            ))}
+                        {photoUrls.map((url, i) => (
+                            <img key={i} src={url} alt={`foto ${i}`} style={{ width: "100px", height: "100px", objectFit: "cover" }} />
+                        ))}
                     </div>
                 )}
             </div>
@@ -118,6 +120,19 @@ export default function AddRoom() {
                         className="form-control"
                         placeholder="Ingresar la dirección exacta"
                         value={form.address}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group col">
+                    <label htmlFor="city" className="form-label">Ciudad *</label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        className="form-control"
+                        placeholder="Ciudad"
+                        value={form.city}
                         onChange={handleChange}
                         required
                     />

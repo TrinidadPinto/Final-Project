@@ -91,6 +91,7 @@ def get_user(user_id):
 
 
 @api.route('/update-profile/<int:user_id>', methods=['PUT'])  # EDITAR PERFIL
+@jwt_required()
 def update_profile(user_id):
     data = request.get_json()
 
@@ -115,7 +116,7 @@ def handle_rooms():
         data = request.get_json()
 
         required_fields = ["title", "description", "photos",
-                           "capacity", "price", "address", "lat", "lng", "host_id"]
+                           "capacity", "price", "address", "city", "host_id"]
         for field in required_fields:
             if not data.get(field):
                 return jsonify({"msg": f"{field} is required"}), 400
@@ -130,8 +131,9 @@ def handle_rooms():
             capacity=int(data["capacity"]),
             price=float(data["price"]),
             address=data["address"],
-            lat=float(data["lat"]),
-            lng=float(data["lng"]),
+            city=data["city"],
+            lat=float(data.get("lat", 0)) if data.get("lat") else None,
+            lng=float(data.get("lng", 0)) if data.get("lng") else None,
             host_id=int(data["host_id"])
         )
         db.session.add(room)
@@ -141,6 +143,7 @@ def handle_rooms():
 
     elif request.method == 'GET':
         rooms = Room.query.all()
+        # Each room.serialize() now includes bookings
         return jsonify([room.serialize() for room in rooms]), 200
 
 

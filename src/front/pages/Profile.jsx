@@ -3,31 +3,35 @@ import { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 import RoomCard from "../components/RoomCard";
 import Booking from "../components/Booking";
+import EditProfile from "./EditProfile";
 
 const Profile = () => {
 
     const [user, setUser] = useState({});
     const [error, setError] = useState(false);
     const [bookings, setBookings] = useState([]);
+    const [showEditProfile, setShowEditProfile] = useState(false);
 
     let { user_id } = useParams();
+
+    const fetchUser = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/user/${user_id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwt-token")}`
+                }
+            });
+            if (!res.ok) throw new Error("Error al obtener usuario");
+            const data = await res.json();
+            setUser(data);
+        } catch (error) {
+            setUser(null);
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/user/${user_id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem("jwt-token")}`
-                    }
-                });
-                if (!res.ok) throw new Error("Error al obtener usuario");
-                const data = await res.json();
-                setUser(data);
-            } catch (error) {
-                setUser(null);
-                console.error(error);
-            }
-        };
         fetchUser();
     }, [user_id]);
 
@@ -76,7 +80,7 @@ const Profile = () => {
                 <div className="card-body">
                     <div className="d-flex align-items-center justify-content-between mb-4">
                         <h2 className="mb-0">Perfil de Usuario</h2>
-                        <button className="btn btn-primary" onClick={() => {/* acción futura de editar */ }}>
+                        <button className="btn btn-primary" onClick={() => setShowEditProfile(true)}>
                             Editar perfil
                         </button>
                     </div>
@@ -142,8 +146,24 @@ const Profile = () => {
                     {/* Aquí se mostrarán las habitaciones del usuario */}
                 </div>
             </div>
-        </div>
-    )
-}
 
-export default Profile
+            {showEditProfile && (
+                <div className="modal fade show d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Editar Perfil</h5>
+                                <button type="button" className="btn-close" aria-label="Close" onClick={() => setShowEditProfile(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <EditProfile user={user} onClose={() => setShowEditProfile(false)} onProfileUpdated={() => { fetchUser(); setShowEditProfile(false); }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default Profile;
