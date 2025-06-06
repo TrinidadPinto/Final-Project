@@ -6,12 +6,14 @@ from flask_cors import CORS
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+from datetime import datetime, timedelta
 import cloudinary.uploader
 
 
 
 api = Blueprint('api', __name__)
 bcrypt = Bcrypt()
+
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
@@ -23,7 +25,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
-@api.route('/signup', methods=['POST'])                              #REGISTRARSE
+@api.route('/signup', methods=['POST'])  # REGISTRARSE
 def signup():
     data = request.get_json()
     email = data.get("email")
@@ -34,29 +36,29 @@ def signup():
     city = data.get("city")
     country = data.get("country")
 
-
     if not email or not password or not name:
         return jsonify({"msg": "Email and password required"}), 400
-    
+
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({"msg": "User already exists"}), 409
-    
+
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(email=email, password=hashed_password,name=name, address=address, phone=phone, city=city, country=country)
+    new_user = User(email=email, password=hashed_password, name=name,
+                    address=address, phone=phone, city=city, country=country)
 
     db.session.add(new_user)
     db.session.commit()
-    
+
     return jsonify({"msg": "User created successfully"}), 201
 
 
-@api.route('/login', methods=['POST'])                             #INICIO DE SESION
+@api.route('/login', methods=['POST'])  # INICIO DE SESION
 def login():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-    
+
     if not email or not password:
         return jsonify({"msg": "Email and password required"}), 400
 
@@ -64,12 +66,14 @@ def login():
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials"}), 401
     access_token = create_access_token(identity=str(user.id))
-    return jsonify({"msg": "Login successful", "user": user.serialize(),"access_token":access_token}), 200
+    return jsonify({"msg": "Login successful", "user": user.serialize(), "access_token": access_token}), 200
+
 
 @api.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users]), 200
+
 
 @api.route("/protected", methods=["GET"])
 @jwt_required()
@@ -78,7 +82,18 @@ def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
 
-@api.route('/update-profile/<int:user_id>', methods=['PUT'])        #EDITAR PERFIL
+
+@api.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify(user.serialize())
+
+
+@api.route('/update-profile/<int:user_id>', methods=['PUT'])  # EDITAR PERFIL
+@jwt_required()
 def update_profile(user_id):
     data = request.get_json()
 
@@ -95,6 +110,7 @@ def update_profile(user_id):
     db.session.commit()
 
     return jsonify({"msg": "User profile updated successfully", "user": user.serialize()}), 200
+
 
 @api.route('/room', methods=['POST', 'GET'])
 def handle_rooms():
@@ -147,21 +163,22 @@ def handle_rooms():
 
     elif request.method == 'GET':
         rooms = Room.query.all()
+        # Each room.serialize() now includes bookings
         return jsonify([room.serialize() for room in rooms]), 200
-    
+
+
 @api.route('/room/<int:room_id>', methods=['PUT'])
 @jwt_required()
 def update_room(room_id):
     user_id = get_jwt_identity()
     room = Room.query.get(room_id)
 
-
     if not room:
         return jsonify({"msg": "Room not found"}), 404
-    
+
     if room.user_id != int(user_id):
         return jsonify({"msg": "Unauthorized"}), 403
-    
+
     data = request.get_json()
     room.title = data.get("title", room.title)
     room.description = data.get("description", room.description)
@@ -189,13 +206,12 @@ def get_room(room_id):
 def delete_room(room_id):
     user_id = get_jwt_identity()
     room = Room.query.get(room_id)
-    
+
     if not room:
         return jsonify({"msg": "Room not found"}), 404
-    
+
     if room.user_id != int(user_id):
         return jsonify({"msg": "Unauthorized"}), 403
-    
 
     db.session.delete(room)
     db.session.commit()
@@ -203,45 +219,96 @@ def delete_room(room_id):
     return jsonify({"msg": "Room deleted succsessfully"}), 200
 
 
-@api.route('/my-rooms', methods=['GET'])                             #ver mis habitaciones publicadas
+@api.route('/my-rooms', methods=['GET'])  # ver mis habitaciones publicadas
 @jwt_required()
 def get_my_rooms():
     user_id = get_jwt_identity()
-    rooms = Room.query.filter_by(user_id=user_id).all()
+    rooms = Room.query.filter_by(host_id=user_id).all()
     return jsonify([room.serialize() for room in rooms]), 200
 
 
-@api.route('/host/bookings', methods=['GET'])                        #ver reservas
+@api.route('/my-bookings', methods=['GET'])
 @jwt_required()
-def get_bookings_for_host():
-    host_id = get_jwt_identity()    
-
-    my_rooms = Room.query.filter_by(host_id=host_id).all()
-    if not my_rooms:
-        return jsonify({"msg": "No rooms found for this host"}), 404
-    
-    room_ids = [room.id for room in my_rooms]
-
-    bookings = Booking.query.filter(Booking.room_id.in_(room_ids)).all()
-
+def get_my_bookings():
+    user_id = get_jwt_identity()
+    bookings = Booking.query.filter_by(user_id=user_id).all()
     result = []
     for booking in bookings:
-        result.append({
-            "booking_id": booking.id,
-            "check_in": booking.check_in.isoformat(),
-            "check_out": booking.check_out.isoformat(),
-            "guests": booking.guests,
-            "room": {
-                "id": booking.room.id,
-                "title": booking.room.title,
-                "address": booking.room.address
-            },
-            "guest": {
-                "id": booking.user.id,
-                "name": booking.user.name,
-                "email": booking.user.email,
-                "phone": booking.user.phone
-            }
-        })
-
+        booking_data = booking.serialize()
+        room = Room.query.get(booking.room_id)
+        booking_data['room'] = room.serialize() if room else None
+        result.append(booking_data)
     return jsonify(result), 200
+
+
+@api.route('/booking', methods=['POST'])
+@jwt_required()
+def add_booking():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    room_id = data.get('room_id')
+    check_in = data.get('check_in')
+    check_out = data.get('check_out')
+    guests = data.get('guests')
+
+    if not all([room_id, check_in, check_out, guests]):
+        return jsonify({'msg': 'Faltan datos para la reserva'}), 400
+
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({'msg': 'Habitación no encontrada'}), 404
+
+    try:
+        check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+        check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
+    except Exception:
+        return jsonify({'msg': 'Formato de fecha inválido, debe ser YYYY-MM-DD'}), 400
+
+    overlapping = Booking.query.filter(
+        Booking.room_id == room_id,
+        Booking.check_out > check_in_date,
+        Booking.check_in < check_out_date
+    ).first()
+    if overlapping:
+        return jsonify({'msg': 'La habitación ya está reservada para esas fechas'}), 409
+
+    # Crear la reserva
+    booking = Booking(
+        user_id=user_id,
+        room_id=room_id,
+        check_in=check_in_date,
+        check_out=check_out_date,
+        guests=guests
+    )
+    db.session.add(booking)
+    db.session.commit()
+    return jsonify({'msg': 'Reserva creada exitosamente', 'booking': booking.serialize()}), 201
+
+
+@api.route('/delete-booking/<int:booking_id>', methods=['DELETE'])
+@jwt_required()
+def delete_booking(booking_id):
+    user_id = get_jwt_identity()
+    booking = Booking.query.get(booking_id)
+    if not booking:
+        return jsonify({'msg': 'Reserva no encontrada'}), 404
+    if booking.user_id != int(user_id):
+        return jsonify({'msg': 'No autorizado para cancelar esta reserva'}), 403
+    db.session.delete(booking)
+    db.session.commit()
+    return jsonify({'msg': 'Reserva eliminada exitosamente'}), 200
+
+
+@api.route('/room/<int:room_id>/booked-dates', methods=['GET'])
+def get_booked_dates(room_id):
+    room = Room.query.get(room_id)
+    if not room:
+        return jsonify({'msg': 'Room not found'}), 404
+    bookings = Booking.query.filter_by(room_id=room_id).all()
+    booked_dates = []
+    for booking in bookings:
+        current = booking.check_in
+        while current <= booking.check_out:
+            booked_dates.append(current.strftime('%Y-%m-%d'))
+            current += timedelta(days=1)
+    return jsonify({'booked_dates': booked_dates}), 200

@@ -7,7 +7,7 @@ import { Footer } from "../components/Footer"
 export default function Layout() {
     return (
         <ScrollToTop>
-            <div className="">
+            <div className="page-bg">
                 <Navbar />
                 <main className="container my-3">
                     <Outlet />

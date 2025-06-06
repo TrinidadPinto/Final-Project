@@ -6,7 +6,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         actions: {
             fetchRooms: async () => {
                 try {
-                    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room`);
+                    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/room`);
                     if (!res.ok) throw new Error("Error al obtener habitaciones");
                     const data = await res.json();
                     setStore({ rooms: data });
@@ -20,7 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 let room = store.rooms.find(room => room.id === roomId);
                 if (!room) {
                     try {
-                        const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room/${roomId}`);
+                        const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/room/${roomId}`);
                         if (!resp.ok) throw new Error("Error al mostrar habitación");
                         room = await resp.json();
                         setStore({ rooms: [...store.rooms, room] });
@@ -34,10 +34,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             getRooms: async () => {
               try {
-                const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/room`);
+                const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/room`);
                 if (!resp.ok) throw new Error("Error al obtener las habitaciones");
                 const data = await resp.json();
                 setStore({ rooms: data });
+                console.log(data)
               } catch (error) {
                 console.error("Error cargando habitaciones:", error);
               }

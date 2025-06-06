@@ -1,0 +1,33 @@
+#navbar {
+    background-color: #111;
+    color: #ccc;
+    font-size: 0.95rem;
+}
+.navbar-brand,
+.navbar-brand:hover,
+.navbar-brand:focus,
+.navbar-brand:active,
+.navbar-brand:visited {
+    font-size: 2rem;
+    color: white !important;
+    font-weight: 700;
+
+}
+.btn-green {
+    background-color: #82b440;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+}
+.btn-green:hover {
+    background-color: #6da22d;
+}
+.btn-light {
+    background-color: #f0f4f8;
+    color: #1a1a1a;
+    padding: 10px 15px;
+    border: none;
+}
+.btn-light:hover {
+    background-color: #dce7f3;
+}
