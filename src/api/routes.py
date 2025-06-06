@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_bcrypt import Bcrypt
-from api.models import db, User, Room
+from api.models import db, User, Room, Booking
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+import cloudinary.uploader
 
 
 
@@ -97,31 +98,53 @@ def update_profile(user_id):
 
 @api.route('/room', methods=['POST', 'GET'])
 def handle_rooms():
-    if request.method == 'POST':
-        data = request.get_json()
 
-        required_fields = ["title", "description", "photos", "capacity", "price", "address", "host_id"]
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({"msg": f"{field} is required"}), 400
-            
-        photo_url = ",".join(data.get("photos", []))
+
+    if request.method == 'POST':
+        if not all(k in request.form for k in ["title", "description", "capacity", "price", "address", "host_id"]):
+            return jsonify({"msg": "All fields except rules are required"}), 400
+        
+        title = request.form["title"]
+        description = request.form["description"]
+        capacity = request.form["capacity"]
+        price = request.form["price"]
+        address = request.form["address"]
+        host_id = request.form["host_id"]
+        
+        if "rules" in request.form:
+            rules = request.form["rules"]
+        
+
+        if not "photos" in request.files:
+            return jsonify({"msg": "At least one photo is required"}), 400
+        
+        photos = request.files.getlist("photos")
+
+        cloudinary_urls = []
+        for photo in photos:
+            try:
+                result = cloudinary.uploader.upload(photo)
+                cloudinary_urls.append(result["secure_url"])
+            except Exception as e:
+                return jsonify({"msg": f"Error uploading image: {str(e)}"}), 500
+
+        photo_url = ",".join(cloudinary_urls)
 
         room = Room(
-            title=data["title"],
-            description=data["description"],
+            title=title,
+            description=description,
             photo_url=photo_url,
-            rules=data.get("rules", ""),
-            capacity=data["capacity"],
-            price=data["price"],
-            address=data["address"],
-            host_id=data["host_id"]
+            rules=rules,
+            capacity=capacity,
+            price=price,
+            address=address,
+            host_id=host_id
         )
         db.session.add(room)
         db.session.commit()
 
         return jsonify({"msg": "Room created", "room": room.serialize()}), 201
-    
+
     elif request.method == 'GET':
         rooms = Room.query.all()
         return jsonify([room.serialize() for room in rooms]), 200
@@ -188,3 +211,37 @@ def get_my_rooms():
     return jsonify([room.serialize() for room in rooms]), 200
 
 
+@api.route('/host/bookings', methods=['GET'])                        #ver reservas
+@jwt_required()
+def get_bookings_for_host():
+    host_id = get_jwt_identity()    
+
+    my_rooms = Room.query.filter_by(host_id=host_id).all()
+    if not my_rooms:
+        return jsonify({"msg": "No rooms found for this host"}), 404
+    
+    room_ids = [room.id for room in my_rooms]
+
+    bookings = Booking.query.filter(Booking.room_id.in_(room_ids)).all()
+
+    result = []
+    for booking in bookings:
+        result.append({
+            "booking_id": booking.id,
+            "check_in": booking.check_in.isoformat(),
+            "check_out": booking.check_out.isoformat(),
+            "guests": booking.guests,
+            "room": {
+                "id": booking.room.id,
+                "title": booking.room.title,
+                "address": booking.room.address
+            },
+            "guest": {
+                "id": booking.user.id,
+                "name": booking.user.name,
+                "email": booking.user.email,
+                "phone": booking.user.phone
+            }
+        })
+
+    return jsonify(result), 200

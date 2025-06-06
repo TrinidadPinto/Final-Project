@@ -1,5 +1,7 @@
 import os
 import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
@@ -26,6 +28,14 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 
 load_dotenv()
+
+cloudinary.config( 
+    cloud_name = os.getenv('CLOUDINARY_CLOUDNAME'),
+    api_key = os.getenv('CLOUDINARY_API_KEY'), 
+    api_secret = os.getenv('CLOUDINARY_API_SECRET'), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
+
 app = Flask(__name__)
 bcrypt.init_app(app)
 app.url_map.strict_slashes = False
