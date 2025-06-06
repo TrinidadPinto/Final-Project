@@ -11,6 +11,7 @@ const Profile = () => {
     const [error, setError] = useState(false);
     const [bookings, setBookings] = useState([]);
     const [showEditProfile, setShowEditProfile] = useState(false);
+    const [rooms, setRooms] = useState([]);
 
     let { user_id } = useParams();
 
@@ -33,6 +34,23 @@ const Profile = () => {
 
     useEffect(() => {
         fetchUser();
+        // Obtener habitaciones del usuario
+        const fetchRooms = async () => {
+            try {
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/my-rooms`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("jwt-token")}`
+                    }
+                });
+                if (!res.ok) throw new Error("Error al obtener habitaciones");
+                const data = await res.json();
+                setRooms(data);
+            } catch (error) {
+                setRooms([]);
+                console.error(error);
+            }
+        };
+        fetchRooms();
     }, [user_id]);
 
     useEffect(() => {
@@ -142,8 +160,39 @@ const Profile = () => {
                             + Agregar habitación
                         </Link>
                     </div>
-                    <p className="text-muted">Aquí podrás ver las habitaciones que has publicado (próximamente).</p>
-                    {/* Aquí se mostrarán las habitaciones del usuario */}
+                    {rooms.length === 0 ? (
+                        <p className="text-muted">No tienes habitaciones publicadas.</p>
+                    ) : (
+                        <div className="row g-3">
+                            {rooms.map(room => (
+                                <div className="col-12 col-md-6" key={room.id}>
+                                    <div className="card shadow-sm mb-3">
+                                        <div className="card-body">
+                                            <h5 className="card-title">{room.title}</h5>
+                                            <p className="card-text mb-1"><strong>Dirección:</strong> {room.address}</p>
+                                            <p className="card-text mb-1"><strong>Ciudad:</strong> {room.city}</p>
+                                            <p className="card-text mb-1"><strong>Precio:</strong> ${room.price?.toLocaleString("es-CO") || room.price} COP</p>
+                                            <p className="card-text mb-1"><strong>Capacidad:</strong> {room.capacity} personas</p>
+                                            {room.bookings && room.bookings.length > 0 ? (
+                                                <div className="mt-2">
+                                                    <strong>Reservas:</strong>
+                                                    <ul className="mb-0">
+                                                        {room.bookings.map((b, i) => (
+                                                            <li key={i}>
+                                                                {b.check_in} &rarr; {b.check_out} ({b.guests} huéspedes)
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ) : (
+                                                <p className="text-muted mb-0">Sin reservas</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

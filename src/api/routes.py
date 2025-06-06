@@ -203,7 +203,7 @@ def delete_room(room_id):
 @jwt_required()
 def get_my_rooms():
     user_id = get_jwt_identity()
-    rooms = Room.query.filter_by(user_id=user_id).all()
+    rooms = Room.query.filter_by(host_id=user_id).all()
     return jsonify([room.serialize() for room in rooms]), 200
 
 
