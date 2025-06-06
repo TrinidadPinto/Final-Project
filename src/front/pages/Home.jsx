@@ -1,4 +1,4 @@
-import "./Home.css";
+import "./Layout.css";
 import { useContext, useEffect, useState } from 'react';
 import { Context } from '../hooks/useGlobalReducer';
 import { Link } from 'react-router-dom';
