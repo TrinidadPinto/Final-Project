@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function Signup() {
   const [name, setName] = useState("");
@@ -7,6 +8,7 @@ export function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -36,7 +38,6 @@ export function Signup() {
     }
 
     setLoading(true);
-    console.log(import.meta.env.VITE_BACKEND_URL)
 
     try {
       const response = await fetch(`${API_BASE_URL}/signup`, {
@@ -48,11 +49,20 @@ export function Signup() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("¡Usuario registrado con éxito!");
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
+        const loginResponse = await fetch(`${API_BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const loginData = await loginResponse.json();
+        if (loginResponse.ok) {
+          localStorage.setItem("jwt-token", loginData.access_token);
+          localStorage.setItem("user_id", loginData.user.id);
+          navigate("/");
+        } else {
+          setError("Registro exitoso, pero no se pudo iniciar sesión automáticamente.");
+        }
       } else {
         setError(data.message || "Error al registrarse.");
       }
