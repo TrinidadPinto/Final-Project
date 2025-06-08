@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import placeholderImg from "../assets/img/elementor-placeholder-image.webp";
 
 const RoomCard = ({ room }) => {
+    const imageUrl =
+        room.photo_url && room.photo_url.length > 0 && room.photo_url[0].startsWith("http")
+            ? room.photo_url[0]
+            : placeholderImg;
     return (
         <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch">
             <div className="card shadow-sm h-100 border-0 rounded-4 overflow-hidden">
@@ -11,7 +15,7 @@ const RoomCard = ({ room }) => {
                     style={{ textDecoration: "none", color: "inherit" }}
                 >
                     <img
-                        src={placeholderImg}
+                        src={imageUrl}
                         className="card-img-top"
                         alt={room.title}
                         style={{

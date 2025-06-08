@@ -8,7 +8,6 @@ export default function AddRoom() {
     const [form, setForm] = useState({
         title: "",
         description: "",
-        photo_url: "",
         rules: "",
         capacity: "",
         price: "",
@@ -17,33 +16,47 @@ export default function AddRoom() {
         lat: "",
         lng: ""
     });
+    const [photos, setPhotos] = useState([]);
+    const [photoError, setPhotoError] = useState([]);
 
     const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        if (e.target.name === "photos") {
+            setPhotos(e.target.files);
+            if (e.target.files.length < 4) {
+                setPhotoError("Debes subir al menos 4 imágenes de la habitación.");
+            } else {
+                setPhotoError("");
+            }
+        } else {
+            setForm({ ...form, [e.target.name]: e.target.value });
+        }
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (photos.length < 4) {
+            setPhotoError("Debes subir al menos 4 imágenes de la habitación.");
+            return;
+        }
+        setPhotoError("");
         const host_id = localStorage.getItem("user_id");
+        const formData = new FormData();
+        Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+        formData.append("host_id", host_id);
+        for (let i = 0; i < photos.length; i++) {
+            formData.append("photos", photos[i]);
+        }
         const response = await fetch(`${API_BASE_URL}/room`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                ...form,
-                photo_url: form.photo_url.split(",").map(p => p.trim()),
-                host_id: parseInt(host_id)
-            })
+            body: formData
         });
-
         const data = await response.json();
         if (response.ok) {
             alert("Habitación publicada");
-            useActionState.fetchRooms();
             setForm({
                 title: "",
                 description: "",
-                photo_url: "",
                 rules: "",
                 capacity: "",
                 price: "",
@@ -52,12 +65,12 @@ export default function AddRoom() {
                 lat: "",
                 lng: ""
             });
+            setPhotos([]);
             navigate("/room");
         } else {
             alert(data.msg || "Error al publicar habitación");
         }
     };
-    const photoUrls = form.photo_url.split(",").map(p => p.trim()).filter(Boolean);
 
     return (
         <form onSubmit={handleSubmit} className="p-4 max-w-lg mx-auto">
@@ -92,24 +105,25 @@ export default function AddRoom() {
                 <div className="form-group col">
                     <label htmlFor="photos" className="form-label">Imágenes *</label>
                     <input
-                        type="text"
+                        type="file"
                         id="photos"
                         name="photos"
                         className="form-control"
-                        placeholder="URLs de fotos separadas por coma"
-                        rows="3"
-                        value={form.photos}
+                        multiple
+                        accept="image/*"
                         onChange={handleChange}
                         required
                     />
+                    <small className="form-text text-muted">Sube al menos 4 imágenes. Medidas recomendadas: 800x600px o proporción 4:3.</small>
+                    {photoError && <div className="text-danger mt-1">{photoError}</div>}
+                    {photos && photos.length > 0 && (
+                        <div className="mb-3 d-flex flex-wrap gap-2">
+                            {[...photos].map((file, i) => (
+                                <img key={i} src={URL.createObjectURL(file)} alt={`foto ${i}`} style={{ width: "160px", height: "120px", objectFit: "cover", borderRadius: "8px" }} />
+                            ))}
+                        </div>
+                    )}
                 </div>
-                {photoUrls.length > 0 && (
-                    <div className="mb-3 d-flex flex-wrap gap-2">
-                        {photoUrls.map((url, i) => (
-                            <img key={i} src={url} alt={`foto ${i}`} style={{ width: "100px", height: "100px", objectFit: "cover" }} />
-                        ))}
-                    </div>
-                )}
             </div>
             <div className="row mb-3">
                 <div className="form-group col-md-6">

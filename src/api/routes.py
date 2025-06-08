@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 import cloudinary.uploader
 
 
-
 api = Blueprint('api', __name__)
 bcrypt = Bcrypt()
 
@@ -115,25 +114,23 @@ def update_profile(user_id):
 @api.route('/room', methods=['POST', 'GET'])
 def handle_rooms():
 
-
     if request.method == 'POST':
         if not all(k in request.form for k in ["title", "description", "capacity", "price", "address", "host_id"]):
             return jsonify({"msg": "All fields except rules are required"}), 400
-        
+
         title = request.form["title"]
         description = request.form["description"]
         capacity = request.form["capacity"]
         price = request.form["price"]
         address = request.form["address"]
         host_id = request.form["host_id"]
-        
+
         if "rules" in request.form:
             rules = request.form["rules"]
-        
 
         if not "photos" in request.files:
             return jsonify({"msg": "At least one photo is required"}), 400
-        
+
         photos = request.files.getlist("photos")
 
         cloudinary_urls = []
@@ -146,6 +143,8 @@ def handle_rooms():
 
         photo_url = ",".join(cloudinary_urls)
 
+        city = request.form["city"]
+
         room = Room(
             title=title,
             description=description,
@@ -154,6 +153,7 @@ def handle_rooms():
             capacity=capacity,
             price=price,
             address=address,
+            city=city,
             host_id=host_id
         )
         db.session.add(room)
@@ -210,7 +210,7 @@ def delete_room(room_id):
     if not room:
         return jsonify({"msg": "Room not found"}), 404
 
-    if room.user_id != int(user_id):
+    if room.host_id != int(user_id):
         return jsonify({"msg": "Unauthorized"}), 403
 
     db.session.delete(room)
