@@ -92,6 +92,27 @@ const Profile = () => {
         }
     };
 
+    const handleDeleteRoom = async (roomId) => {
+        if (!window.confirm("¿Seguro que deseas eliminar esta habitación?")) return;
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/room/${roomId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwt-token")}`
+                }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert("Habitación eliminada correctamente");
+                setRooms(prev => prev.filter(r => r.id !== roomId));
+            } else {
+                alert(data.msg || "No se pudo eliminar la habitación");
+            }
+        } catch (error) {
+            alert("Error de conexión al eliminar la habitación");
+        }
+    };
+
     return (
         <div className="container mt-5">
             <div className="card mx-auto shadow" style={{ maxWidth: '900px', borderRadius: '16px' }}>
@@ -183,9 +204,13 @@ const Profile = () => {
                                                             </li>
                                                         ))}
                                                     </ul>
+                                                    <button className="btn btn-secondary btn-sm mt-2" disabled>Eliminar habitación (tiene reservas)</button>
                                                 </div>
                                             ) : (
-                                                <p className="text-muted mb-0">Sin reservas</p>
+                                                <>
+                                                    <p className="text-muted mb-0">Sin reservas</p>
+                                                    <button className="btn btn-danger btn-sm mt-2" onClick={() => handleDeleteRoom(room.id)}>Eliminar habitación</button>
+                                                </>
                                             )}
                                         </div>
                                     </div>
