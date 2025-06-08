@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import RoomCard from "../components/RoomCard";
 import Booking from "../components/Booking";
 import EditProfile from "./EditProfile";
+import EditRoom from "../components/EditRoom";
 
 const Profile = () => {
 
@@ -12,6 +13,8 @@ const Profile = () => {
     const [bookings, setBookings] = useState([]);
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [rooms, setRooms] = useState([]);
+    const [showEditRoom, setShowEditRoom] = useState(false);
+    const [roomToEdit, setRoomToEdit] = useState(null);
 
     let { user_id } = useParams();
 
@@ -113,6 +116,18 @@ const Profile = () => {
         }
     };
 
+    const handleEditRoom = (room) => {
+        setRoomToEdit(room);
+        setShowEditRoom(true);
+    };
+
+    const handleRoomUpdated = () => {
+        setShowEditRoom(false);
+        setRoomToEdit(null);
+        // Refresca habitaciones
+        fetchRooms();
+    };
+
     return (
         <div className="container mt-5">
             <div className="card mx-auto shadow" style={{ maxWidth: '900px', borderRadius: '16px' }}>
@@ -210,6 +225,7 @@ const Profile = () => {
                                                 <>
                                                     <p className="text-muted mb-0">Sin reservas</p>
                                                     <button className="btn btn-danger btn-sm mt-2" onClick={() => handleDeleteRoom(room.id)}>Eliminar habitación</button>
+                                                    <button className="btn btn-warning btn-sm mt-2 ms-2" onClick={() => handleEditRoom(room)}>Editar</button>
                                                 </>
                                             )}
                                         </div>
@@ -231,6 +247,22 @@ const Profile = () => {
                             </div>
                             <div className="modal-body">
                                 <EditProfile user={user} onClose={() => setShowEditProfile(false)} onProfileUpdated={() => { fetchUser(); setShowEditProfile(false); }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditRoom && roomToEdit && (
+                <div className="modal fade show d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Editar Habitación</h5>
+                                <button type="button" className="btn-close" aria-label="Close" onClick={() => setShowEditRoom(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <EditRoom room={roomToEdit} onClose={() => setShowEditRoom(false)} onRoomUpdated={handleRoomUpdated} />
                             </div>
                         </div>
                     </div>

@@ -176,17 +176,40 @@ def update_room(room_id):
     if not room:
         return jsonify({"msg": "Room not found"}), 404
 
-    if room.user_id != int(user_id):
+    if room.host_id != int(user_id):
         return jsonify({"msg": "Unauthorized"}), 403
 
-    data = request.get_json()
-    room.title = data.get("title", room.title)
-    room.description = data.get("description", room.description)
-    room.photo_url = data.get("photos", room.photo_url)
-    room.rules = data.get("rules", room.rules)
-    room.capacity = data.get("capacity", room.capacity)
-    room.price = data.get("price", room.price)
-    room.address = data.get("address", room.address)
+    
+    if request.content_type and request.content_type.startswith('multipart/form-data'):
+        data = request.form
+       
+        if "photos" in request.files:
+            photos = request.files.getlist("photos")
+            cloudinary_urls = []
+            for photo in photos:
+                try:
+                    result = cloudinary.uploader.upload(photo)
+                    cloudinary_urls.append(result["secure_url"])
+                except Exception as e:
+                    return jsonify({"msg": f"Error uploading image: {str(e)}"}), 500
+            room.photo_url = ",".join(cloudinary_urls)
+        room.title = data.get("title", room.title)
+        room.description = data.get("description", room.description)
+        room.rules = data.get("rules", room.rules)
+        room.capacity = data.get("capacity", room.capacity)
+        room.price = data.get("price", room.price)
+        room.address = data.get("address", room.address)
+        room.city = data.get("city", room.city)
+    else:
+        data = request.get_json()
+        room.title = data.get("title", room.title)
+        room.description = data.get("description", room.description)
+        room.photo_url = data.get("photos", room.photo_url)
+        room.rules = data.get("rules", room.rules)
+        room.capacity = data.get("capacity", room.capacity)
+        room.price = data.get("price", room.price)
+        room.address = data.get("address", room.address)
+        room.city = data.get("city", room.city)
 
     db.session.commit()
 
